@@ -1,21 +1,26 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import Toaster from "@/components/Toaster";
+import CartDrawer from "@/components/CartDrawer";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "Dar Al Fateh | Premium Online Grocery",
-  description: "Fresh groceries, organic produce, and premium household essentials delivered to you.",
+  description: "Fresh groceries, organic produce, and premium household essentials delivered to your door.",
 };
 
 export default function RootLayout({
@@ -26,24 +31,16 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${outfit.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[var(--background)]">
+      <body className="min-h-full flex flex-col bg-[#F7F3EF]">
+        <Toaster />
+        <CartDrawer />
         <Header />
         <main className="flex-1 w-full">
           {children}
         </main>
-        
-        {/* Simple Footer */}
-        <footer className="bg-slate-50 border-t border-slate-200 py-12 mt-16">
-          <div className="container mx-auto px-4 max-w-7xl text-center">
-            <h3 className="text-xl font-bold text-[var(--color-brand-green)] mb-2">Dar Al Fateh</h3>
-            <p className="text-slate-500 text-sm mb-6">Premium delivery app. Inspired by the best, built for excellence.</p>
-            <div className="text-slate-400 text-xs uppercase tracking-widest font-bold">
-              © {new Date().getFullYear()} Dar Al Fateh. All Rights Reserved.
-            </div>
-          </div>
-        </footer>
+        <Footer />
       </body>
     </html>
   );

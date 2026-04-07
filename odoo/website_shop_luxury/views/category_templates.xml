@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Customize Category Cards (Filmstrip/Grid) -->
+    <template id="categories_custom_luxury" inherit_id="website_sale.filmstrip" name="Luxury Category Filmstrip">
+        <xpath expr="//div[hasclass('o_wsale_filmst_container')]" position="attributes">
+            <attribute name="class">o_wsale_filmst_container luxury_category_section mb-5</attribute>
+        </xpath>
+        
+        <xpath expr="//div[hasclass('o_wsale_filmst_container')]//a" position="attributes">
+            <attribute name="class">o_wsale_category_card text-decoration-none d-block text-center px-2 mb-4</attribute>
+        </xpath>
+
+        <!-- Customize the category image inside the link -->
+        <xpath expr="//div[hasclass('o_wsale_filmst_container')]//div[hasclass('o_wsale_filmst_img')]" position="attributes">
+            <attribute name="class">o_wsale_category_image rounded-circle mx-auto mb-3 overflow-hidden shadow-sm</attribute>
+        </xpath>
+    </template>
+</odoo>

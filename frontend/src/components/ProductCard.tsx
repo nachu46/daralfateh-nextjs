@@ -1,8 +1,9 @@
 "use client";
 
 import Link from 'next/link';
-import { Plus, Check } from 'lucide-react';
+import { Plus, Check, Heart } from 'lucide-react';
 import { useCartStore } from '@/store/useCartStore';
+import { useToastStore } from '@/store/useToastStore';
 import { useState } from 'react';
 
 export interface Product {
@@ -10,59 +11,95 @@ export interface Product {
   name: string;
   price: number;
   image_url: string | null;
+  hover_image_url?: string | null;
   category: { id: number; name: string }[];
+  badge?: string;
 }
 
 export default function ProductCard({ product }: { product: Product }) {
   const addItem = useCartStore(state => state.addItem);
+  const addToast = useToastStore(state => state.addToast);
   const [added, setAdded] = useState(false);
+  const [wishlisted, setWishlisted] = useState(false);
+  const [hovered, setHovered] = useState(false);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     addItem(product);
+    addToast(`${product.name} added to pantry ✧`, 'success');
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
 
+  const handleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setWishlisted(w => !w);
+  };
+
+  const displayImage = hovered && product.hover_image_url
+    ? product.hover_image_url
+    : (product.image_url || 'https://dar-al-fateh.odoo.com/web/image/website.s_cover_default_image');
+
   return (
-    <div className="bg-[var(--color-card-bg)] rounded-3xl p-4 md:p-5 border border-slate-100 shadow-[0_4px_20px_-8px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 relative group flex flex-col h-full">
-      <div className="absolute top-4 left-4 z-10 bg-rose-500 text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-md shadow-sm">
-        -20%
-      </div>
-      
-      <Link href={`/product/${product.id}`} className="block flex-1">
-        <div className="relative w-full aspect-square bg-slate-50 mix-blend-multiply rounded-2xl mb-5 overflow-hidden flex items-center justify-center p-6">
-          <img 
-            src={product.image_url || 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80'} 
-            alt={product.name}
-            className="object-contain w-full h-full mix-blend-multiply group-hover:scale-110 transition-transform duration-500"
-          />
+    <div
+      className="bg-white rounded-[12px] overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.10)] hover:-translate-y-1.5 transition-all duration-500 relative group flex flex-col h-full"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {/* Badge */}
+      {product.badge && (
+        <div className="absolute top-3 left-3 z-10 bg-[#C8A97E] text-white text-[9px] font-black uppercase tracking-[0.15em] px-2.5 py-1 rounded-full shadow">
+          {product.badge}
         </div>
-        <div className="mb-1.5 text-[10px] md:text-xs text-slate-500 font-bold tracking-wider uppercase">
-          {product.category[0]?.name || 'Fresh Produce'}
-        </div>
-        <h3 className="font-semibold text-slate-800 leading-snug mb-2 line-clamp-2 md:text-lg">
-          {product.name}
-        </h3>
+      )}
+
+      {/* Wishlist */}
+      <button
+        onClick={handleWishlist}
+        className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white shadow flex items-center justify-center transition-all ${wishlisted ? 'text-[#C8A97E]' : 'text-[#CCC] hover:text-[#C8A97E]'} opacity-0 group-hover:opacity-100`}
+      >
+        <Heart size={15} fill={wishlisted ? "currentColor" : "none"} strokeWidth={1.5} />
+      </button>
+
+      {/* Product Image */}
+      <Link href={`/product/${product.id}`} className="block relative overflow-hidden bg-[#F9F9F9]" style={{ height: '200px' }}>
+        <img
+          src={displayImage}
+          alt={product.name}
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+        />
       </Link>
-      
-      <div className="flex items-center justify-between mt-auto pt-4 relative z-10 border-t border-slate-50">
-        <div className="flex flex-col">
-          <span className="text-xs text-slate-400 line-through decoration-slate-300 font-medium">AED {(product.price * 1.25).toFixed(2)}</span>
-          <span className="text-xl md:text-2xl font-extrabold text-[var(--color-brand-green-hover)] tracking-tight tracking-[-0.02em]">AED {product.price.toFixed(2)}</span>
+
+      {/* Product Details */}
+      <div className="p-4 flex-grow flex flex-col">
+        <p className="text-[9px] uppercase tracking-[0.15em] text-[#C8A97E] font-black mb-1">
+          {product.category[0]?.name || 'Fresh'}
+        </p>
+        <Link href={`/product/${product.id}`}>
+          <h3 className="text-[13px] font-semibold text-[#2C2C2C] line-clamp-2 leading-snug hover:text-[#C8A97E] transition-colors mb-3">
+            {product.name}
+          </h3>
+        </Link>
+
+        <div className="mt-auto flex items-center justify-between gap-2">
+          <span className="text-[15px] font-bold text-[#2C2C2C]">
+            AED {product.price.toFixed(2)}
+          </span>
+          <button
+            onClick={handleAddToCart}
+            disabled={added}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all shadow-sm flex-shrink-0 ${
+              added
+                ? 'bg-emerald-500 text-white'
+                : 'bg-[#F7F3EF] text-[#C8A97E] hover:bg-[#C8A97E] hover:text-white'
+            }`}
+          >
+            {added ? <Check size={13} strokeWidth={3} /> : <Plus size={13} strokeWidth={3} />}
+            {added ? 'Added' : 'Add'}
+          </button>
         </div>
-        <button 
-          onClick={handleAddToCart}
-          disabled={added}
-          className={`p-3 md:p-4 rounded-2xl transition-all shadow-md group/btn ${added ? 'bg-emerald-100 text-emerald-600 shadow-none' : 'bg-[var(--color-brand-green)] text-white hover:bg-[var(--color-brand-green-hover)] shadow-[var(--color-brand-green)]/20 active:scale-95'}`}
-        >
-          {added ? (
-            <Check className="w-5 h-5 md:w-6 md:h-6" strokeWidth={3} />
-          ) : (
-            <Plus className="w-5 h-5 md:w-6 md:h-6 group-hover/btn:rotate-90 transition-transform duration-300" strokeWidth={2.5} />
-          )}
-        </button>
       </div>
     </div>
   );

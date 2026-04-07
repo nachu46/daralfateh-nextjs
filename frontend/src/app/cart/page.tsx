@@ -1,108 +1,184 @@
 "use client";
 
-import Link from "next/link";
 import { useCartStore } from "@/store/useCartStore";
-import { Trash2, Plus, Minus, ArrowRight } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, ChevronLeft } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState, useMemo } from "react";
+import CheckoutForm from "@/components/CheckoutForm";
 
 export default function CartPage() {
-  const { items, updateQuantity, removeItem, totalAmount } = useCartStore();
-  
-  // To avoid hydration mismatch when using localStorage persistence
+  const items = useCartStore((state) => state.items);
+  const updateQuantity = useCartStore((state) => state.updateQuantity);
+  const removeItem = useCartStore((state) => state.removeItem);
+  const clearCart = useCartStore((state) => state.clearCart);
+
+  // FIX: Reactive total amount calculation using useMemo
+  const totalAmount = useMemo(() => {
+    return items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+  }, [items]);
+
   const [mounted, setMounted] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [checkoutStep, setCheckoutStep] = useState<'review' | 'details'>('review');
+
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  const handleCheckout = async (customerDetails: any) => {
+    try {
+      setIsProcessing(true);
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items, customer: customerDetails }),
+      });
+      const data = await res.json();
+      if (data.paymentUrl) {
+        // Clear local cart before redirecting
+        clearCart();
+        window.location.href = data.paymentUrl;
+      } else {
+        alert("Operation Error: " + data.error);
+        setIsProcessing(false);
+      }
+    } catch (e) {
+      alert("We encountered an error connecting to Odoo.");
+      setIsProcessing(false);
+    }
+  };
+
   if (!mounted) return null;
 
   return (
-    <div className="container mx-auto px-4 max-w-7xl py-12">
-      <h1 className="text-3xl font-extrabold mb-8 text-slate-900 tracking-tight">Your Cart</h1>
-      
-      {items.length === 0 ? (
-        <div className="text-center py-20 bg-slate-50 rounded-3xl border border-slate-100">
-          <div className="w-24 h-24 bg-slate-200 rounded-full mx-auto mb-6 flex items-center justify-center">
-            <span className="text-4xl">🛒</span>
+    <div className="bg-[#F7F3EF] min-h-screen pt-24 pb-32">
+      <div className="container mx-auto px-6 max-w-[1400px]">
+        {/* Page Header */}
+        <div className="mb-16">
+          <div className="flex items-center gap-3 mb-6">
+            <Link href="/shop" className="text-[10px] font-black text-[#C8A97E] uppercase tracking-[0.3em] flex items-center gap-1.5 hover:translate-x-[-4px] transition-transform">
+              <ChevronLeft size={14} />
+              Continue Shopping
+            </Link>
           </div>
-          <h2 className="text-2xl font-bold text-slate-800 mb-3">Your cart is empty</h2>
-          <p className="text-slate-500 mb-8 max-w-md mx-auto">Looks like you haven't added anything to your cart yet. Discover fresh products in our shop.</p>
-          <Link href="/shop" className="bg-[var(--color-brand-green)] text-white px-8 py-3.5 rounded-full font-bold shadow-lg shadow-emerald-500/20 hover:scale-105 transition-transform active:scale-95 inline-block">
-            Start Shopping
-          </Link>
+          <h1 className="text-4xl md:text-5xl font-bold text-[#2C2C2C] uppercase tracking-tighter mb-4">
+            Your Selection
+          </h1>
+          <p className="text-[11px] font-bold text-[#AAA] uppercase tracking-[0.3em]">
+            Quality items synchronizing with our Odoo 18 Pantry
+          </p>
         </div>
-      ) : (
-        <div className="flex flex-col lg:flex-row gap-10">
-          {/* Cart Items */}
-          <div className="flex-[0.65] flex flex-col gap-6">
-            {items.map(item => (
-              <div key={item.id} className="bg-white border border-slate-100 shadow-[0_4px_20px_-8px_rgba(0,0,0,0.05)] rounded-3xl p-4 md:p-6 flex items-center gap-6">
-                <div className="w-24 h-24 md:w-32 md:h-32 bg-slate-50 rounded-2xl flex items-center justify-center p-2">
-                  <img src={item.image_url!} alt={item.name} className="object-contain w-full h-full mix-blend-multiply" />
-                </div>
-                <div className="flex-1">
-                  <div className="text-xs text-slate-500 font-bold tracking-wider uppercase mb-1">{item.category[0]?.name}</div>
-                  <h3 className="font-bold text-slate-800 lg:text-lg mb-2 line-clamp-2 md:line-clamp-1">{item.name}</h3>
-                  <div className="font-extrabold text-[var(--color-brand-green-hover)] text-lg">AED {item.price.toFixed(2)}</div>
-                </div>
-                
-                <div className="flex flex-col items-center gap-4">
-                  <div className="flex items-center gap-3 bg-slate-50 p-1.5 rounded-full border border-slate-200">
-                    <button 
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-600 hover:text-[var(--color-brand-green)] border border-slate-200 disabled:opacity-50"
-                    >
-                      <Minus className="w-4 h-4" />
-                    </button>
-                    <span className="w-4 text-center font-bold text-slate-700">{item.quantity}</span>
-                    <button 
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-600 hover:text-[var(--color-brand-green)] border border-slate-200"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
-                  </div>
-                  <button onClick={() => removeItem(item.id)} className="text-slate-400 hover:text-red-500 transition-colors text-sm font-medium flex items-center gap-1">
-                    <Trash2 className="w-4 h-4" /> <span className="hidden md:inline">Remove</span>
-                  </button>
-                </div>
-              </div>
-            ))}
+
+        {items.length === 0 ? (
+          <div className="bg-white p-20 rounded-none border border-[#EAEAEA] shadow-[0_20px_80px_rgba(0,0,0,0.04)] text-center">
+            <div className="w-24 h-24 rounded-full border border-dashed border-[#C8A97E] flex items-center justify-center mx-auto mb-8">
+              <ShoppingBag className="text-[#C8A97E]" size={36} strokeWidth={1} />
+            </div>
+            <h2 className="text-2xl font-bold text-[#2C2C2C] uppercase tracking-tighter mb-4">Pantry is empty</h2>
+            <p className="text-[#999] text-sm mb-10 max-w-md mx-auto">
+              You haven't added any luxury pantry items yet. Explore our curated collections to start your journey.
+            </p>
+            <Link href="/shop" className="bg-[#C8A97E] text-white px-12 py-5 rounded-none font-black text-[11px] uppercase tracking-[0.4em] hover:bg-[#111] transition-all inline-block shadow-xl">
+              Go to Boutique
+            </Link>
           </div>
-          
-          {/* Order Summary */}
-          <div className="flex-[0.35]">
-            <div className="bg-slate-50 rounded-3xl p-6 lg:p-8 sticky top-24 border border-slate-200 shadow-sm">
-              <h3 className="text-xl font-bold text-slate-900 mb-6">Order Summary</h3>
-              
-              <div className="flex flex-col gap-4 mb-6 text-slate-600 font-medium">
-                <div className="flex justify-between">
-                  <span>Subtotal</span>
-                  <span className="text-slate-800">AED {totalAmount.toFixed(2)}</span>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+            {/* Left side: Cart Items or Checkout Form */}
+            <div className="lg:col-span-8 flex flex-col gap-10">
+              {checkoutStep === 'review' ? (
+                <div className="space-y-8">
+                  {items.map((item) => (
+                    <div key={item.id} className="bg-white p-8 rounded-none border border-[#EAEAEA] shadow-[0_10px_40px_rgba(0,0,0,0.03)] flex flex-col md:flex-row gap-8 group">
+                      <div className="w-full md:w-40 h-40 bg-[#F9F9F9] p-4 flex items-center justify-center flex-shrink-0">
+                        <img src={item.image_url!} alt={item.name} className="w-full h-full object-contain mix-blend-multiply transition-transform duration-700 group-hover:scale-105" />
+                      </div>
+                      <div className="flex-1 flex flex-col justify-center">
+                        <div className="text-[10px] font-black text-[#C8A97E] uppercase tracking-[0.3em] mb-2" style={{ fontFamily: 'var(--font-outfit)' }}>
+                          {item.category[0]?.name || 'Pantry Item'}
+                        </div>
+                        <h3 className="text-xl font-bold text-[#2C2C2C] uppercase tracking-tighter mb-4 leading-tight">{item.name}</h3>
+                        <div className="flex items-center justify-between mt-auto pt-4 border-t border-[#F5F5F5]">
+                          <div className="text-lg font-bold text-[#2C2C2C]">AED {item.price.toFixed(2)}</div>
+                          <div className="flex items-center gap-6">
+                            <div className="flex items-center gap-4 bg-[#F7F3EF] px-3 py-1.5 border border-[#EAEAEA]">
+                              <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="text-[#AAA] hover:text-[#C8A97E] transition-colors"><Minus size={14} strokeWidth={3} /></button>
+                              <span className="text-[12px] font-black text-[#2C2C2C] w-4 text-center">{item.quantity}</span>
+                              <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="text-[#AAA] hover:text-[#C8A97E] transition-colors"><Plus size={14} strokeWidth={3} /></button>
+                            </div>
+                            <button onClick={() => removeItem(item.id)} className="text-[#CCC] hover:text-[#2C2C2C] transition-colors p-2"><Trash2 size={18} strokeWidth={1.5} /></button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex justify-between">
-                  <span>Delivery Fee</span>
-                  <span className="text-emerald-600 font-bold">Free</span>
+              ) : (
+                <div className="animate-in slide-in-from-left-4 duration-500">
+                  <CheckoutForm onSubmit={handleCheckout} isLoading={isProcessing} />
                 </div>
-                <div className="border-t border-slate-200 pt-4 flex justify-between items-center text-lg mt-2">
-                  <span className="text-slate-900 font-bold">Total</span>
-                  <span className="text-2xl font-extrabold text-[var(--color-brand-green-hover)]">AED {totalAmount.toFixed(2)}</span>
+              )}
+            </div>
+
+            {/* Right side: Order Summary */}
+            <div className="lg:col-span-4 lg:sticky lg:top-32">
+              <div className="bg-white p-10 border border-[#EAEAEA] shadow-[0_20px_80px_rgba(0,0,0,0.06)] space-y-10">
+                <div className="space-y-6">
+                  <h3 className="text-[11px] font-black text-[#C8A97E] uppercase tracking-[0.4em]" style={{ fontFamily: 'var(--font-outfit)' }}>Order Summary</h3>
+                  
+                  <div className="space-y-4">
+                    <div className="flex justify-between text-[#999] text-[10px] font-black uppercase tracking-[0.3em]">
+                      <span>Subtotal</span>
+                      <span className="text-[#2C2C2C]">AED {totalAmount.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-[#999] text-[10px] font-black uppercase tracking-[0.3em]">
+                      <span>Bespoke Delivery</span>
+                      <span className="text-emerald-500">Free</span>
+                    </div>
+                    <div className="flex justify-between items-end pt-8 border-t border-[#F5F5F5]">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-black text-[#C8A97E] uppercase tracking-[0.3em] mb-1">Total Amount</span>
+                        <span className="text-3xl font-bold text-[#2C2C2C] uppercase tracking-tighter">AED {totalAmount.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4 pt-10">
+                  {checkoutStep === 'review' ? (
+                    <button 
+                      onClick={() => setCheckoutStep('details')}
+                      className="w-full bg-[#C8A97E] text-white py-6 rounded-none font-black text-[11px] uppercase tracking-[0.4em] hover:bg-[#111] transition-all flex items-center justify-center gap-4 shadow-xl active:scale-[0.99] group"
+                    >
+                      Bespoke Checkout
+                      <ArrowRight size={16} strokeWidth={3} className="group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  ) : (
+                    <button 
+                      onClick={() => setCheckoutStep('review')}
+                      className="w-full text-center text-[10px] font-black text-[#AAA] uppercase tracking-[0.2em] hover:text-[#C8A97E] transition-colors py-2 flex items-center justify-center gap-2"
+                    >
+                      <ChevronLeft size={12} />
+                      Review Full Pantry
+                    </button>
+                  )}
+                </div>
+
+                <div className="pt-10 border-t border-[#F5F5F5]">
+                  <p className="text-[10px] font-black text-[#CCC] uppercase tracking-[0.2em] leading-relaxed mb-6">
+                    Professional payments handled securely by Odoo 18. We accept Visa, Mastercard, and Apple Pay via bridged portal.
+                  </p>
+                  <div className="flex items-center gap-4 opacity-30 grayscale hover:grayscale-0 transition-all duration-700">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="h-4" />
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" className="h-6" />
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Apple_Pay_logo.svg" alt="Apple Pay" className="h-4" />
+                  </div>
                 </div>
               </div>
-              
-              <Link href="/checkout" className="w-full bg-[var(--color-brand-green)] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-[var(--color-brand-green-hover)] transition-colors shadow-lg shadow-emerald-500/20 active:scale-95 group">
-                Proceed to Checkout
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
-              
-              <p className="text-xs text-center text-slate-500 mt-6 display-flex flex-col gap-1">
-                <span className="block font-medium">Secure Payments by Odoo</span>
-                <span>We accept Visa, Mastercard, and Apple Pay</span>
-              </p>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

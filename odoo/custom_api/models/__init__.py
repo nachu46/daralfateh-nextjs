@@ -1,1 +1,1 @@
-# Leave empty or add custom models if necessary in the future
+from . import product_extension

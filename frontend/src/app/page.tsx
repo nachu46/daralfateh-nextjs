@@ -1,50 +1,80 @@
 import HeroBanner from "@/components/HeroBanner";
-import CategoryGrid from "@/components/CategoryGrid";
+import FeaturedCategories from "@/components/FeaturedCategories";
 import ProductCard from "@/components/ProductCard";
+import Link from 'next/link';
+import { fetchProducts, fetchCategories, getCategoryImageUrl } from '@/lib/odoo';
 
-// Dummy data to visualize the UI before tying up with Odoo
-const dummyProducts = [
-  { id: 1, name: "Organic Hass Avocados (Pack of 3)", price: 24.50, category: [{ id: 1, name: "Fresh Fruits" }], image_url: "https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&q=80&w=600" },
-  { id: 2, name: "Fresh Atlantic Salmon Fillet", price: 89.00, category: [{ id: 1, name: "Seafood" }], image_url: "https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?auto=format&fit=crop&q=80&w=600" },
-  { id: 3, name: "Artisan Sourdough Loaf", price: 18.00, category: [{ id: 1, name: "Bakery" }], image_url: "https://images.unsplash.com/photo-1585478259715-ddc2a969f6bb?auto=format&fit=crop&q=80&w=600" },
-  { id: 4, name: "Organic Cherry Tomatoes 500g", price: 12.00, category: [{ id: 1, name: "Fresh Produce" }], image_url: "https://images.unsplash.com/photo-1506154674744-8cb3897ea8d9?auto=format&fit=crop&q=80&w=600" },
-  { id: 5, name: "Free Range Large Brown Eggs (12 pcs)", price: 15.75, category: [{ id: 1, name: "Dairy & Eggs" }], image_url: "https://images.unsplash.com/photo-1587486913049-53cb889f412d?auto=format&fit=crop&q=80&w=600" },
-  { id: 6, name: "Premium Angus Ribeye Steak", price: 115.00, category: [{ id: 1, name: "Meat & Poultry" }], image_url: "https://images.unsplash.com/photo-1603048297172-c92544798d5e?auto=format&fit=crop&q=80&w=600" },
-  { id: 7, name: "Almond Milk Unsweetened 1L", price: 14.50, category: [{ id: 1, name: "Dairy Alternatives" }], image_url: "https://images.unsplash.com/photo-1628183185340-e291244e883e?auto=format&fit=crop&q=80&w=600" },
-  { id: 8, name: "Organic Honeycrisp Apples (1kg)", price: 21.00, category: [{ id: 1, name: "Fresh Fruits" }], image_url: "https://images.unsplash.com/photo-1560806887-1e4cd0b6fd6e?auto=format&fit=crop&q=80&w=600" },
-];
+export const revalidate = 60;
 
-export default function Home() {
+export default async function Home() {
+  // Fetch ONLY real Odoo data — no fallback demo data
+  const [products, cats] = await Promise.all([
+    fetchProducts({ limit: 10 }),
+    fetchCategories(),
+  ]);
+
+  const displayCategories = cats.slice(0, 6).map(c => ({
+    id: c.id,
+    name: c.name,
+    image_url: getCategoryImageUrl(c.id),
+  }));
+
   return (
     <>
       <HeroBanner />
-      <CategoryGrid />
-      
-      <section className="container mx-auto px-4 max-w-7xl mb-16">
-        <div className="flex items-end justify-between mb-8">
+      {/* Categories from Odoo */}
+      {displayCategories.length > 0 && (
+        <FeaturedCategories categories={displayCategories} />
+      )}
+
+      {/* Best Sellers — only real Odoo products */}
+      <section className="container mx-auto px-6 max-w-[1500px] mb-20">
+        <div className="flex items-end justify-between mb-10 pb-4 border-b border-[#EAEAEA]">
           <div>
-            <h2 className="text-2xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-2">Bestsellers</h2>
-            <p className="text-slate-500 font-medium md:text-lg">Top picks selected just for you</p>
+            <p className="text-[11px] font-black text-[#C8A97E] uppercase tracking-[0.3em] mb-2">Handpicked</p>
+            <h2 className="text-3xl font-black text-[#2C2C2C] tracking-tight">Best Sellers</h2>
           </div>
+          <Link href="/shop" className="text-[11px] font-black text-[#999] uppercase tracking-widest hover:text-[#C8A97E] transition-colors">
+            View All →
+          </Link>
         </div>
-        
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          {dummyProducts.map(product => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+
+        {products.length === 0 ? (
+          <div className="text-center py-24 bg-white rounded-[20px] border border-[#EEE]">
+            <p className="text-[#999] font-bold uppercase tracking-widest text-sm">No products available right now.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+            {products.map(product => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
       </section>
-      
-      {/* Promotional Banner */}
-      <section className="container mx-auto px-4 max-w-7xl mb-16">
-        <div className="bg-slate-900 rounded-3xl p-8 md:p-12 overflow-hidden relative flex items-center shadow-xl">
-          <div className="absolute right-0 bottom-0 opacity-10 blur-3xl w-full h-full bg-[var(--color-brand-green)] rounded-full translate-x-1/3 translate-y-1/3"></div>
-          <div className="relative z-10 max-w-xl">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4">Get Delivery in Minutes</h2>
-            <p className="text-emerald-100/80 text-lg mb-8">Try Dar Al Fateh Plus for free delivery on all orders, exclusive discounts, and priority support.</p>
-            <button className="bg-[var(--color-brand-green)] text-white font-bold py-3 px-8 rounded-full shadow-lg shadow-emerald-500/20 hover:scale-105 transition-transform active:scale-95">
-              Start Free Trial
-            </button>
+
+      {/* Promo Banner */}
+      <section className="container mx-auto px-6 max-w-[1500px] mb-20">
+        <div className="relative overflow-hidden rounded-[28px] bg-[#2C2C2C] min-h-[260px] flex items-center">
+          <img
+            src="https://dar-al-fateh.odoo.com/web/image/website.s_cover_default_image"
+            alt="Promo"
+            className="absolute inset-0 w-full h-full object-cover opacity-20"
+          />
+          <div className="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-[#C8A97E] opacity-10 blur-3xl" />
+          <div className="relative z-10 px-12 py-10 flex flex-col md:flex-row items-start md:items-center justify-between w-full gap-8">
+            <div>
+              <p className="text-[#C8A97E] text-[11px] font-black uppercase tracking-[0.35em] mb-3">Limited Time</p>
+              <h2 className="text-3xl md:text-4xl font-black text-white leading-tight mb-2 tracking-tight">
+                Free Delivery on Your<br />First Three Orders
+              </h2>
+              <p className="text-white/50 text-sm font-medium">Use code <span className="text-[#C8A97E] font-black">WELCOME</span> at checkout.</p>
+            </div>
+            <Link
+              href="/shop"
+              className="flex-shrink-0 inline-flex items-center gap-2 bg-[#C8A97E] text-white font-black text-[11px] uppercase tracking-[0.2em] px-10 py-5 rounded-full hover:bg-white hover:text-[#2C2C2C] transition-all shadow-2xl"
+            >
+              Shop Now →
+            </Link>
           </div>
         </div>
       </section>

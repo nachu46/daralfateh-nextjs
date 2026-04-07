@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Customize Product Grid Container -->
+    <template id="products_custom_layout" inherit_id="website_sale.products" name="Luxury Shop Layout">
+        <xpath expr="//div[hasclass('o_wsale_products_grid_table_wrapper')]" position="attributes">
+            <attribute name="class">o_wsale_products_grid_table_wrapper luxury_grid_container mb-5</attribute>
+        </xpath>
+    </template>
+
+    <!-- Customize Individual Product Item -->
+    <template id="products_item_luxury" inherit_id="website_sale.products_item" name="Luxury Products Item">
+        <!-- Replace the entire card content to match the premium layout -->
+        <xpath expr="//form" position="replace">
+            <form action="/shop/cart/update" method="POST" class="oe_product luxury_product_card h-100 d-flex flex-column" t-att-data-publish="product.website_published and 'on' or 'off'" itemscope="itemscope" itemtype="http://schema.org/Product">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                
+                <!-- Product Image Section -->
+                <div class="oe_product_image position-relative overflow-hidden">
+                    <a t-att-href="product_href" class="d-block h-100" itemprop="url">
+                        <!-- Main Image -->
+                        <span t-field="product.image_1920" t-options="{'widget': 'image', 'preview_image': 'image_1024', 'class': 'img-fluid w-100 h-100'}" />
+                        
+                        <!-- Hover Image (Swap Logic) -->
+                        <t t-set="product_images" t-value="product.product_template_image_ids" />
+                        <t t-if="product_images">
+                             <span t-field="product_images[0].image_1920" t-options="{'widget': 'image', 'preview_image': 'image_1024', 'class': 'oe_product_image_hover img-fluid w-100 h-100'}" />
+                        </t>
+                        <t t-else="">
+                            <!-- Fallback if no extra images: show main image again but it will be hidden by CSS until hover? 
+                                 Actually, let's just use the same image if no second exists, or omit it. 
+                                 CSS will handle the opacity transition. -->
+                             <span t-field="product.image_1024" t-options="{'widget': 'image', 'class': 'oe_product_image_hover img-fluid w-100 h-100'}" />
+                        </t>
+                    </a>
+                    
+                    <!-- Quick View / Add to Cart Overlay (Optional but requested) -->
+                    <div class="oe_product_cart_button d-grid gap-2">
+                         <button type="submit" class="btn btn-primary btn-sm a-submit" title="Add to Cart">
+                            <i class="fa fa-shopping-cart me-2"/> Add to Cart
+                        </button>
+                    </div>
+
+                    <!-- Ribbons -->
+                    <t t-call="website_sale.ribbon" />
+                </div>
+
+                <!-- Product Info Section -->
+                <div class="oe_product_info p-3 text-center flex-grow-1 d-flex flex-column justify-content-between">
+                    <div class="mb-2">
+                        <h6 class="o_wsale_products_item_title mb-1">
+                            <a t-att-href="product_href" itemprop="name" t-field="product.name" class="text-decoration-none text-dark font-weight-bold" />
+                        </h6>
+                    </div>
+                    
+                    <div class="product_price mb-2" itemprop="offers" itemscope="itemscope" itemtype="http://schema.org/Offer">
+                        <t t-set="combination_info" t-value="product._get_combination_info(only_template=True, add_qty=add_qty or 1, pricelist=pricelist)" />
+                        <span class="oe_price h5 mb-0" t-esc="combination_info['price']" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}" />
+                        <del t-attf-class="text-danger ml-1 {{'' if combination_info['has_discounted_price'] else 'd-none'}}" style="white-space: nowrap;" t-esc="combination_info['list_price']" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}" />
+                        <span itemprop="price" style="display:none;" t-esc="combination_info['price']" />
+                        <span itemprop="priceCurrency" style="display:none;" t-esc="website.currency_id.name" />
+                    </div>
+                </div>
+            </form>
+        </xpath>
+    </template>
+</odoo>

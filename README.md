@@ -14,7 +14,7 @@ A premium headless eCommerce application combining a sleek **Next.js frontend** 
 ## Architecture Overview
 - **Frontend**: Next.js (App Router), React, Zustand (State Management), Tailwind CSS v4, Lucide React (Icons).
 - **Backend**: Odoo Headless Custom API module processing JSON Requests over REST.
-- **Design System**: Premium, clean grocery-shopping aesthetic inspired by Kibsons, heavily leveraging organic shapes, whitespaces, soft shadows, and a signature Emerald Green palette.
+- **Design System**: A vibrant, grid-oriented and information-dense layout perfectly recreating the premium Kibsons UI/UX. Includes a dedicated category navigation bar, split promotional hero banners, and a circular featured categories section.
 
 ---
 
@@ -24,7 +24,7 @@ A premium headless eCommerce application combining a sleek **Next.js frontend** 
 daralfateh/
 ├── frontend/             # Next.js App Router application
 │   ├── src/app/          # Pages and routing (cart, checkout, etc.)
-│   ├── src/components/   # Reusable UI components
+│   ├── src/components/   # Reusable UI components (CategoryNav, HeroBanner, etc.)
 │   └── src/store/        # Zustand state management
 └── odoo/                 # Odoo backend modules
     └── custom_api/       # REST API endpoints for the headless setup
@@ -36,13 +36,14 @@ daralfateh/
 
 ## Step-by-Step Setup Guide
 
-### 1. Backend (Odoo) Setup
-1. **Install Dependencies**: Ensure you have an Odoo 17 instance running with `website_sale` and `sale_management` installed.
+### 1. Backend (Odoo 18) Setup
+1. **Install Dependencies**: Ensure you have an Odoo 18 instance running with `website_sale` and `sale_management` installed.
 2. **Copy Module**: Copy the `/odoo/custom_api` folder to your Odoo `addons` path.
 3. **Install Module**:
    - Restart your Odoo server.
+   - Go to **Settings**, scroll down, and click **Activate the developer mode**.
    - Go to **Apps**, click **Update Apps List**.
-   - Search for "Dar Al Fateh APIs" and click **Install**.
+   - Search for "Dar Al Fateh APIs" and click **Activate/Install**.
 4. **CORS Configuration**:
    - The module natively supports CORS through an `OPTIONS` preflight route handling `Access-Control-Allow-Origin`. 
 

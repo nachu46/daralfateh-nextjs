@@ -1,30 +1,61 @@
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
 
 export default function HeroBanner() {
   return (
-    <div className="relative bg-[var(--color-brand-green-light)] overflow-hidden rounded-3xl mx-4 mt-6 mb-12 md:mx-auto container max-w-7xl h-[320px] md:h-[480px]">
-      <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-brand-green)]/15 to-transparent"></div>
-      
-      {/* Decorative blobs for modern organic feel */}
-      <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[150%] bg-[var(--color-brand-green-hover)]/10 blur-3xl rounded-full"></div>
-      <div className="absolute bottom-[-20%] left-[20%] w-[30%] h-[60%] bg-[var(--color-brand-green)]/10 blur-3xl rounded-full"></div>
+    <section className="container mx-auto px-6 max-w-[1500px] mt-6 mb-16">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-      <div className="relative h-full flex flex-col justify-center px-8 md:px-20 w-full md:w-3/4 lg:w-1/2 z-10">
-        <span className="bg-white/90 backdrop-blur-sm text-[var(--color-brand-green-hover)] text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] py-1.5 px-4 rounded-full w-fit mb-6 shadow-sm">
-          Fresh Arrival
-        </span>
-        <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 mb-6 leading-[1.15] tracking-tight">
-          Premium Groceries Delivered Fresh
-        </h1>
-        <p className="text-slate-700 md:text-lg mb-8 max-w-md font-medium leading-relaxed">
-          Discover a curated selection of organic produce, dairy, and everyday essentials straight to your door.
-        </p>
-        <Link href="/shop" className="group bg-[var(--color-brand-green)] text-white px-8 py-3.5 rounded-full w-max text-sm font-bold tracking-wider hover:bg-[var(--color-brand-green-hover)] hover:-translate-y-1 transition-all duration-300 shadow-lg shadow-[var(--color-brand-green)]/30 flex items-center gap-2">
-          Start Shopping
-          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-        </Link>
+        {/* Main Hero - Large */}
+        <div className="md:col-span-2 relative overflow-hidden rounded-[24px] bg-[#2C2C2C] min-h-[420px] flex items-end group">
+          <img
+            src="https://dar-al-fateh.odoo.com/web/image/website.s_cover_default_image"
+            alt="Dar Al Fateh Premium"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80"
+          />
+          <div className="relative z-10 p-10">
+            <p className="text-[#C8A97E] text-[11px] font-black uppercase tracking-[0.35em] mb-3">Premium Selection</p>
+            <h2 className="text-white text-4xl md:text-5xl font-black leading-[1.05] tracking-tight mb-6 max-w-sm drop-shadow-md">
+              Farm-Fresh Daily Deliveries
+            </h2>
+            <Link
+              href="/shop"
+              className="inline-flex items-center gap-2 bg-white text-[#2C2C2C] font-black text-[11px] uppercase tracking-[0.2em] px-8 py-4 rounded-full hover:bg-[#C8A97E] hover:text-white transition-all shadow-xl"
+            >
+              Shop Now →
+            </Link>
+          </div>
+        </div>
+
+        {/* Side Banners */}
+        <div className="flex flex-col gap-4">
+          <div className="relative overflow-hidden rounded-[24px] bg-[#F7F3EF] flex-1 min-h-[200px] group flex items-end">
+            <img
+              src="https://dar-al-fateh.odoo.com/web/image/website.s_carousel_default_image_1"
+              alt="Organic Selection"
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#2C2C2C]/80 via-transparent" />
+            <div className="relative z-10 p-6">
+              <p className="text-white font-black text-[11px] uppercase tracking-widest mb-1 text-[#C8A97E] drop-shadow-md">Organic</p>
+              <p className="text-white font-black text-lg leading-tight drop-shadow-md">Premium Quality</p>
+            </div>
+          </div>
+
+          <div className="relative overflow-hidden rounded-[24px] bg-[#EEE8E0] flex-1 min-h-[200px] group flex items-end">
+            <img
+              src="https://dar-al-fateh.odoo.com/web/image/website.s_carousel_default_image_3"
+              alt="Fresh Arrivals"
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#2C2C2C]/80 via-transparent" />
+            <div className="relative z-10 p-6">
+              <p className="font-black text-[11px] uppercase tracking-widest mb-1 text-[#C8A97E] drop-shadow-md">Fresh</p>
+              <p className="text-white font-black text-lg leading-tight drop-shadow-md">New Arrivals</p>
+            </div>
+          </div>
+        </div>
+
       </div>
-    </div >
+    </section>
   );
 }

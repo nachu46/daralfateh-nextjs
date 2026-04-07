@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Customize Main Header Layout -->
+    <template id="header_custom_luxury" inherit_id="website.layout" name="Luxury Header Layout">
+        <xpath expr="//header" position="attributes">
+            <attribute name="class">o_affix_enabled luxury_sticky_header border-bottom shadow-sm bg-white</attribute>
+        </xpath>
+    </template>
+
+    <!-- Customize Navigation Menu (Top Bar) -->
+    <template id="header_navbar_luxury" inherit_id="website.navbar" name="Luxury Navbar">
+        <xpath expr="//nav" position="attributes">
+            <attribute name="class">navbar navbar-expand-lg navbar-light py-3 px-4 px-lg-5 mb-0</attribute>
+        </xpath>
+    </template>
+
+    <!-- Mega Menu Enhancement -->
+    <template id="s_mega_menu_luxury" inherit_id="website.s_mega_menu_multi_menus" name="Luxury Mega Menu">
+        <!-- Add smooth fade/slide class and multi-column wrapper -->
+        <xpath expr="//div[hasclass('s_mega_menu_multi_menus')]" position="attributes">
+            <attribute name="class">s_mega_menu_multi_menus luxury_mega_dropdown p-4 border-0 shadow-lg</attribute>
+        </xpath>
+
+        <!-- Customize the submenu titles and links -->
+        <xpath expr="//h4" position="attributes">
+            <attribute name="class"> luxury_submenu_title font-weight-bold mb-3 text-dark text-uppercase</attribute>
+        </xpath>
+        
+        <xpath expr="//ul" position="attributes">
+            <attribute name="class">list-unstyled luxury_submenu_list</attribute>
+        </xpath>
+    </template>
+
+    <!-- Desktop Menu Spacing -->
+    <template id="submenu_luxury" inherit_id="website.submenu" name="Luxury Submenu">
+        <xpath expr="//li[hasclass('nav-item')]" position="attributes">
+             <attribute name="class">nav-item px-lg-2 mx-1</attribute>
+        </xpath>
+        <xpath expr="//a" position="attributes">
+             <attribute name="class">nav-link font-weight-medium text-dark-50 hover-text-accent transition-all</attribute>
+        </xpath>
+    </template>
+</odoo>

@@ -1,0 +1,263 @@
+// Luxury Beige Theme for Odoo 18
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+
+// Color Palette
+$luxury-bg: #F7F3EF;
+$luxury-card: #FFFFFF;
+$luxury-accent: #C8A97E;
+$luxury-text: #2C2C2C;
+$luxury-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+$luxury-border-radius: 12px;
+
+// Fonts
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+body {
+    background-color: $luxury-bg !important;
+    color: $luxury-text !important;
+    font-family: 'Inter', sans-serif !important;
+}
+
+// Sticky Header
+#top_menu_container {
+    background-color: #FFFFFF !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 1rem 0;
+    transition: all 0.3s ease;
+}
+
+// Product Grid - Tight Shopify Style
+#products_grid {
+    .o_wsale_products_grid_table_wrapper {
+        display: grid !important;
+        grid-template-columns: repeat(5, 1fr) !important; // Desktop
+        gap: 20px !important;
+        
+        @media (max-width: 992px) {
+            grid-template-columns: repeat(3, 1fr) !important; // Tablet
+        }
+        
+        @media (max-width: 576px) {
+            grid-template-columns: repeat(2, 1fr) !important; // Mobile
+        }
+        
+        // Remove standard table-like borders and spacing
+        table, tr, td {
+            display: block !important;
+            padding: 0 !important;
+            border: none !important;
+        }
+    }
+}
+
+// Product Card
+.oe_product {
+    background: $luxury-card !important;
+    border: none !important;
+    border-radius: $luxury-border-radius !important;
+    overflow: hidden;
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s ease;
+    height: 100% !important;
+    display: flex;
+    flex-direction: column;
+    box-shadow: $luxury-shadow;
+
+    &:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08) !important;
+        
+        .oe_product_image_hover {
+            opacity: 1 !important;
+        }
+        
+        .oe_product_cart_button {
+            opacity: 1 !important;
+            transform: translateY(0) !important;
+        }
+    }
+
+    .oe_product_image {
+        position: relative;
+        height: 280px !important; // Fixed Height
+        overflow: hidden;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.02);
+
+        img {
+            object-fit: cover !important;
+            width: 100% !important;
+            height: 100% !important;
+            transition: transform 0.6s ease;
+        }
+
+        // Image Swap logic
+        .oe_product_image_hover {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            object-fit: cover !important;
+        }
+    }
+
+    .oe_product_info {
+        padding: 1.25rem !important;
+        text-align: center;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+
+        h6 {
+            font-weight: 600 !important;
+            font-size: 0.95rem !important;
+            color: $luxury-text !important;
+            margin-bottom: 0.5rem !important;
+            line-height: 1.4;
+        }
+
+        .oe_price {
+            font-weight: 700 !important;
+            color: $luxury-accent !important;
+            font-size: 1.1rem !important;
+        }
+    }
+}
+
+// Rounded Buttons (Beige Accent)
+.btn-primary, .btn-secondary {
+    border-radius: 50px !important;
+    font-weight: 600 !important;
+    padding: 0.6rem 1.5rem !important;
+    transition: all 0.3s ease !important;
+    border: none !important;
+}
+
+.btn-primary {
+    background-color: $luxury-accent !important;
+    color: #FFFFFF !important;
+
+    &:hover {
+        background-color: darken($luxury-accent, 10%) !important;
+        transform: scale(1.05);
+    }
+}
+
+// Add to Cart Button on Hover
+.oe_product_cart_button {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    right: 15px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    z-index: 10;
+}
+
+// Category Cards
+.o_wsale_filmst_container {
+    padding: 40px 0 !important;
+    
+    .o_wsale_category_card {
+        border: none !important;
+        background: transparent !important;
+        transition: transform 0.4s ease;
+        
+        &:hover {
+            transform: translateY(-10px);
+            
+            .o_wsale_category_image {
+                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1) !important;
+            }
+        }
+        
+        .o_wsale_category_image {
+            border-radius: $luxury-border-radius !important;
+            overflow: hidden;
+            box-shadow: $luxury-shadow;
+            transition: box-shadow 0.4s ease;
+            margin-bottom: 15px;
+            aspect-ratio: 1/1;
+            
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+        }
+        
+        span {
+            font-weight: 700 !important;
+            font-size: 1.1rem !important;
+            color: $luxury-text !important;
+        }
+    }
+}
+
+// Section Spacing
+section {
+    padding: 60px 0 !important;
+}
+
+// Mega menu animations
+.luxury_mega_dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100vw;
+    background: #FFFFFF;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(15px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    border-radius: 0 0 16px 16px;
+    padding: 2.5rem !important;
+
+    &.show, .nav-item:hover & {
+        display: block;
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.luxury_submenu_title {
+    font-size: 0.8rem;
+    letter-spacing: 1.5px;
+    margin-bottom: 1.5rem;
+    color: #999;
+    border-bottom: 1px solid #EEE;
+    padding-bottom: 0.5rem;
+}
+
+.luxury_submenu_list {
+    li {
+        margin-bottom: 0.75rem;
+        
+        a {
+            color: $luxury-text !important;
+            font-size: 0.95rem;
+            text-decoration: none;
+            transition: color 0.2s;
+            
+            &:hover {
+                color: $luxury-accent !important;
+            }
+        }
+    }
+}
+
+.luxury_sticky_header {
+    top: 0;
+    z-index: 1030;
+    position: sticky;
+}
+
+.hover-text-accent:hover {
+    color: $luxury-accent !important;
+}
