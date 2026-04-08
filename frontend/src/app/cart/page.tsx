@@ -4,6 +4,7 @@ import { useCartStore } from "@/store/useCartStore";
 import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState, useMemo } from "react";
+import EmptyCart from "@/components/EmptyCart";
 import CheckoutForm from "@/components/CheckoutForm";
 
 export default function CartPage() {
@@ -70,18 +71,7 @@ export default function CartPage() {
         </div>
 
         {items.length === 0 ? (
-          <div className="bg-white p-20 rounded-none border border-[#EAEAEA] shadow-[0_20px_80px_rgba(0,0,0,0.04)] text-center">
-            <div className="w-24 h-24 rounded-full border border-dashed border-[#C8A97E] flex items-center justify-center mx-auto mb-8">
-              <ShoppingBag className="text-[#C8A97E]" size={36} strokeWidth={1} />
-            </div>
-            <h2 className="text-2xl font-bold text-[#2C2C2C] uppercase tracking-tighter mb-4">Pantry is empty</h2>
-            <p className="text-[#999] text-sm mb-10 max-w-md mx-auto">
-              You haven't added any luxury pantry items yet. Explore our curated collections to start your journey.
-            </p>
-            <Link href="/shop" className="bg-[#C8A97E] text-white px-12 py-5 rounded-none font-black text-[11px] uppercase tracking-[0.4em] hover:bg-[#111] transition-all inline-block shadow-xl">
-              Go to Boutique
-            </Link>
-          </div>
+          <EmptyCart />
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
             {/* Left side: Cart Items or Checkout Form */}

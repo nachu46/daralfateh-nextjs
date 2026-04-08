@@ -4,8 +4,11 @@ import { useCartStore } from "@/store/useCartStore";
 import { X, Plus, Minus, ShoppingBag, ArrowRight, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState, useMemo } from "react";
+import EmptyCart from "@/components/EmptyCart";
+import { useRouter } from "next/navigation";
 
 export default function CartDrawer() {
+  const router = useRouter();
   const items = useCartStore((state) => state.items);
   const isOpen = useCartStore((state) => state.isOpen);
   const closeCart = useCartStore((state) => state.closeCart);
@@ -17,7 +20,6 @@ export default function CartDrawer() {
     return items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   }, [items]);
   
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -36,25 +38,9 @@ export default function CartDrawer() {
     };
   }, [isOpen]);
 
-  const handleCheckout = async () => {
-    try {
-      setIsCheckingOut(true);
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items }),
-      });
-      const data = await res.json();
-      if (data.portalUrl) {
-        window.location.href = data.portalUrl;
-      } else {
-        alert("Checkout error: " + data.error);
-        setIsCheckingOut(false);
-      }
-    } catch (e) {
-      alert("Integration error. Please try again.");
-      setIsCheckingOut(false);
-    }
+  const handleCheckout = () => {
+    closeCart();
+    router.push("/cart");
   };
 
   if (!mounted) return null;
@@ -99,18 +85,7 @@ export default function CartDrawer() {
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
           {items.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-center opacity-40">
-              <div className="w-20 h-20 rounded-full border-2 border-dashed border-[#C8A97E] flex items-center justify-center mb-4">
-                <ShoppingBag size={30} className="text-[#C8A97E]" />
-              </div>
-              <p className="text-sm font-bold uppercase tracking-widest text-[#2C2C2C]">Your pantry is empty</p>
-              <button 
-                onClick={closeCart}
-                className="mt-4 text-[10px] font-black text-[#C8A97E] uppercase tracking-[0.2em] hover:underline"
-              >
-                Start Shopping →
-              </button>
-            </div>
+            <EmptyCart isDrawer />
           ) : (
             items.map((item) => (
               <div key={item.id} className="flex gap-6 group animate-in slide-in-from-right-8 duration-500">
@@ -175,16 +150,11 @@ export default function CartDrawer() {
             <div className="space-y-4">
               <button 
                 onClick={handleCheckout}
-                disabled={isCheckingOut}
                 className="w-full bg-[#C8A97E] text-white py-6 rounded-none font-black text-[11px] uppercase tracking-[0.4em] hover:bg-[#111] transition-all flex items-center justify-center gap-4 shadow-xl active:scale-[0.99] disabled:bg-[#CCC]"
                 style={{ fontFamily: 'var(--font-outfit)' }}
               >
-                {isCheckingOut ? "Connecting to Odoo..." : (
-                  <>
-                    Proceed to Portal
-                    <ArrowRight size={14} strokeWidth={3} />
-                  </>
-                )}
+                Complete Selection
+                <ArrowRight size={14} strokeWidth={3} />
               </button>
               <Link 
                 href="/cart" 
