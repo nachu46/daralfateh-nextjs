@@ -5,13 +5,13 @@ import { useEffect, useState } from 'react';
 
 export default function Toaster() {
   const toasts = useToastStore((state) => state.toasts);
-  const [mounted, setMounted] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    setHasMounted(true);
   }, []);
 
-  if (!mounted) return null;
+  if (!hasMounted) return null;
 
   return (
     <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[200] flex flex-col gap-3 pointer-events-none">

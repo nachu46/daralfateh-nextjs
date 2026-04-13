@@ -1,30 +1,40 @@
 import { NextResponse } from 'next/server';
+import { callOdoo } from '@/lib/odoo';
 
 export async function GET() {
-  const odooUrl = process.env.ODOO_URL;
-  if (!odooUrl) {
-    return new NextResponse('Missing ODOO_URL', { status: 500 });
-  }
-  
   try {
-    // In Odoo, the main company / website logo is typically available at this path.
-    // We add a unique cache buster or simply let Next.js cache it.
-    const res = await fetch(`${odooUrl}/web/image/website/1/logo`);
+    // Fetch website record using JSON-RPC
+    // ID 1 is the default website ID in Odoo
+    const result = await callOdoo<any[]>('website', 'read', [[1], ['logo']]);
     
-    if (!res.ok) {
-      return new NextResponse('Failed to fetch logo from Odoo', { status: res.status });
+    if (!result || result.length === 0 || !result[0].logo) {
+      // Try fallback to website ID 2 or company logo if website 1 fails
+      const companyResult = await callOdoo<any[]>('res.company', 'read', [[1], ['logo']]);
+      if (!companyResult || companyResult.length === 0 || !companyResult[0].logo) {
+           return new NextResponse('Logo not found', { status: 404 });
+      }
+      
+      const buffer = Buffer.from(companyResult[0].logo, 'base64');
+      return new NextResponse(buffer, {
+        headers: {
+          'Content-Type': 'image/png',
+          'Cache-Control': 'public, max-age=3600'
+        }
+      });
     }
-    
-    const buffer = await res.arrayBuffer();
+
+    const buffer = Buffer.from(result[0].logo, 'base64');
+    const isWebP = buffer.toString('utf8', 0, 4) === 'RIFF';
     
     return new NextResponse(buffer, {
       headers: {
-        'Content-Type': res.headers.get('Content-Type') || 'image/png',
+        'Content-Type': isWebP ? 'image/webp' : 'image/png',
         'Cache-Control': 'public, max-age=3600'
       }
     });
+
   } catch (err) {
     console.error('[API Logo Error]', err);
-    return new NextResponse('Error fetching logo', { status: 500 });
+    return new NextResponse('Error fetching logo via RPC', { status: 500 });
   }
 }

@@ -55,9 +55,15 @@ export default function Footer() {
           <div className="flex flex-col gap-8">
             <h4 className="font-black text-[12px] uppercase tracking-[0.4em] text-[#C8A97E]">Useful Links</h4>
             <ul className="flex flex-col gap-4">
-              {['Home', 'About Us', 'Products', 'Services', 'Legal', 'Contact Us'].map((label) => (
+              {[
+                { label: 'Home', href: '/' },
+                { label: 'Shop Center', href: '/shop' },
+                { label: 'Track Order', href: '/track' },
+                { label: 'About Us', href: '/about' },
+                { label: 'Contact Us', href: '/contact' }
+              ].map(({ label, href }) => (
                 <li key={label}>
-                  <Link href={label === 'Home' ? '/' : `/${label.toLowerCase().replace(' ', '-')}`} className="text-[#666] text-[13px] hover:text-[#C8A97E] hover:translate-x-1 inline-block transition-all font-bold uppercase tracking-widest">
+                  <Link href={href} className="text-[#666] text-[13px] hover:text-[#C8A97E] hover:translate-x-1 inline-block transition-all font-bold uppercase tracking-widest">
                     {label}
                   </Link>
                 </li>

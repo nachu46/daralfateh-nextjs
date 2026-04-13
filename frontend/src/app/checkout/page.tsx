@@ -111,6 +111,12 @@ export default function CheckoutPage() {
                     <div className="w-10 h-10 bg-[#C8A97E] text-white rounded-full flex items-center justify-center font-black text-lg">1</div>
                     <h2 className="text-2xl font-black text-[#2C2C2C] uppercase tracking-tight">Delivery Details</h2>
                   </div>
+
+                  {error && (
+                    <div className="mb-8 p-4 bg-red-50 border border-red-100 text-red-600 rounded-xl text-[13px] font-bold">
+                      {error}
+                    </div>
+                  )}
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
@@ -253,7 +259,7 @@ export default function CheckoutPage() {
                 ) : items.map((item) => (
                   <div key={item.id} className="flex gap-4 items-center">
                     <div className="w-16 h-16 rounded-xl bg-[#F7F3EF] overflow-hidden flex-shrink-0 border border-[#EAEAEA] p-1">
-                      <img src={item.image_url || '/placeholder.png'} alt={item.name} className="w-full h-full object-contain" />
+                      <img src={item.image_url || '/api/product-image/0'} alt={item.name} className="w-full h-full object-contain" onError={(e) => { (e.target as HTMLImageElement).src = '/api/product-image/0'; }} />
                     </div>
                     <div className="flex-1">
                       <p className="text-[12px] font-black text-[#2C2C2C] uppercase tracking-tight mb-1">{item.name}</p>

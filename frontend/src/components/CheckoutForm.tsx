@@ -32,7 +32,7 @@ export default function CheckoutForm({ onSubmit, isLoading }: CheckoutFormProps)
     <div className="bg-white p-8 md:p-12 rounded-none border border-[#EAEAEA] shadow-[0_20px_80px_rgba(0,0,0,0.04)]">
       <div className="mb-10">
         <h2 className="text-[10px] font-black text-[#C8A97E] uppercase tracking-[0.65em] mb-4">
-          Bespoke Checkout
+          Secure Checkout
         </h2>
         <p className="text-2xl font-black text-[#2C2C2C] uppercase tracking-tighter">
           Your Delivery Information

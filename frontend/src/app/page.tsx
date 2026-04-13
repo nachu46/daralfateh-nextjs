@@ -52,32 +52,6 @@ export default async function Home() {
         )}
       </section>
 
-      {/* Promo Banner */}
-      <section className="container mx-auto px-6 max-w-[1500px] mb-20">
-        <div className="relative overflow-hidden rounded-[28px] bg-[#2C2C2C] min-h-[260px] flex items-center">
-          <img
-            src="https://dar-al-fateh.odoo.com/web/image/website.s_cover_default_image"
-            alt="Promo"
-            className="absolute inset-0 w-full h-full object-cover opacity-20"
-          />
-          <div className="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-[#C8A97E] opacity-10 blur-3xl" />
-          <div className="relative z-10 px-12 py-10 flex flex-col md:flex-row items-start md:items-center justify-between w-full gap-8">
-            <div>
-              <p className="text-[#C8A97E] text-[11px] font-black uppercase tracking-[0.35em] mb-3">Limited Time</p>
-              <h2 className="text-3xl md:text-4xl font-black text-white leading-tight mb-2 tracking-tight">
-                Free Delivery on Your<br />First Three Orders
-              </h2>
-              <p className="text-white/50 text-sm font-medium">Use code <span className="text-[#C8A97E] font-black">WELCOME</span> at checkout.</p>
-            </div>
-            <Link
-              href="/shop"
-              className="flex-shrink-0 inline-flex items-center gap-2 bg-[#C8A97E] text-white font-black text-[11px] uppercase tracking-[0.2em] px-10 py-5 rounded-full hover:bg-white hover:text-[#2C2C2C] transition-all shadow-2xl"
-            >
-              Shop Now →
-            </Link>
-          </div>
-        </div>
-      </section>
     </>
   );
 }

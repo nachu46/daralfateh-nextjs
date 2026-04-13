@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { Plus, Check, Heart } from 'lucide-react';
+import { Plus, Check } from 'lucide-react';
 import { useCartStore } from '@/store/useCartStore';
 import { useToastStore } from '@/store/useToastStore';
 import { useState } from 'react';
@@ -32,15 +32,15 @@ export interface Product {
   variants?: ProductVariant[];
   extra_images?: string[];
   website_description?: string;
+  ecommerce_description?: string;
   internal_description?: string;
 }
 
 export default function ProductCard({ product }: { product: Product }) {
   const addItem = useCartStore(state => state.addItem);
   const addToast = useToastStore(state => state.addToast);
-  const [added, setAdded] = useState(false);
-  const [wishlisted, setWishlisted] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const [added, setAdded] = useState(false);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -50,15 +50,6 @@ export default function ProductCard({ product }: { product: Product }) {
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
-
-  const handleWishlist = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const displayImage = hovered && product.hover_image_url
-    ? product.hover_image_url
-    : (product.image_url || 'https://dar-al-fateh.odoo.com/web/image/website.s_cover_default_image');
 
   return (
     <div
@@ -77,11 +68,14 @@ export default function ProductCard({ product }: { product: Product }) {
       <Link href={`/product/${product.id}`} className="block relative overflow-hidden bg-[#F9F9F9]" style={{ height: '220px' }}>
         {/* Primary image */}
         <img
-          src={product.image_url || '/placeholder.png'}
+          src={product.image_url || '/api/product-image/0'}
           alt={product.name}
           className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-105 ${
             hovered && product.hover_image_url ? 'opacity-0' : 'opacity-100'
           }`}
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = '/api/product-image/0';
+          }}
         />
         {/* Hover image — only rendered when available */}
         {product.hover_image_url && (

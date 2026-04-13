@@ -145,8 +145,8 @@ export default function CartDrawer() {
                 <span className="text-[#2C2C2C]">AED {totalAmount.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-[#AAA] text-[10px] font-black uppercase tracking-[0.4em]" style={{ fontFamily: 'var(--font-outfit)' }}>
-                <span>Bespoke Delivery</span>
-                <span className="text-[#C8A97E] font-bold">Complimentary</span>
+                <span>Shipping</span>
+                <span className="text-[#C8A97E] font-bold">Free</span>
               </div>
               
               <div className="pt-8 border-t border-[#F5F5F5] flex justify-between items-end">

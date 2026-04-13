@@ -26,7 +26,7 @@ async function getUid(): Promise<number> {
   });
 
   const text = await res.text();
-  let json: any;
+  let json: { result?: number; error?: { data?: { message?: string } } };
   try {
     json = JSON.parse(text);
   } catch (err) {
@@ -75,6 +75,7 @@ export interface OdooProduct {
   product_template_attribute_value_ids?: number[];
   product_template_image_ids?: number[];
   website_description?: string;
+  description_ecommerce?: string;
   description?: string;
 }
 
@@ -84,15 +85,28 @@ export interface OdooCategory {
   parent_id: number[] | false;
 }
 
+interface OdooAttributeLine {
+  id: number;
+  attribute_id: [number, string];
+  product_template_value_ids: number[];
+}
+
+interface OdooAttributeValue {
+  id: number;
+  name: string;
+  product_attribute_value_id: [number, string];
+}
+
 /**
  * Generates an Odoo image URL for a given model and ID
  */
 export function getOdooImageUrl(model: string, id: number, field: string = 'image_512') {
-  return `${ODOO_URL}/web/image/${model}/${id}/${field}`;
+  return `/api/image?model=${model}&id=${id}&field=${field}`;
 }
 
-export function getProductImageUrl(id: number, size: 128 | 256 | 512 | 1024 = 512) {
-  return getOdooImageUrl('product.template', id, `image_${size}`);
+export function getProductImageUrl(id: number) {
+  // Use our local proxy to ensure images load via JSON-RPC
+  return `/api/product-image/${id}`;
 }
 
 export function getCategoryImageUrl(id: number, size: 128 | 256 | 512 | 1024 = 512) {
@@ -153,19 +167,19 @@ export async function fetchProductById(id: number) {
 
   // 2. Fetch the template to get variants, attributes, extra images, AND all description fields
   const templateRecord = await callOdoo<OdooProduct[]>(
-    'product.template', 'read', [[templateId], ['name', 'description_sale', 'website_description', 'description', 'product_variant_ids', 'attribute_line_ids', 'public_categ_ids', 'product_template_image_ids']]
+    'product.template', 'read', [[templateId], ['name', 'description_sale', 'website_description', 'description_ecommerce', 'description', 'product_variant_ids', 'attribute_line_ids', 'public_categ_ids', 'product_template_image_ids']]
   );
   if (!templateRecord.length) return null;
   const t = templateRecord[0];
 
   // 3. Fetch Attribute Lines for the template
-  const attrLines = t.attribute_line_ids?.length ? await callOdoo<any[]>(
+  const attrLines = t.attribute_line_ids?.length ? await callOdoo<OdooAttributeLine[]>(
     'product.template.attribute.line', 'read', [t.attribute_line_ids, ['attribute_id', 'product_template_value_ids']]
   ) : [];
 
   // 4. Fetch the Attribute Values for those lines
   const attributes = await Promise.all(attrLines.map(async (al) => {
-    const values = await callOdoo<any[]>(
+    const values = await callOdoo<OdooAttributeValue[]>(
       'product.template.attribute.value', 'read', [al.product_template_value_ids, ['id', 'name', 'product_attribute_value_id']]
     );
     return {
@@ -194,6 +208,7 @@ export async function fetchProductById(id: number) {
     description: typeof t.description_sale === 'string' ? t.description_sale : '',
     internal_description: typeof t.description === 'string' ? t.description : '',
     website_description: typeof t.website_description === 'string' ? t.website_description : null,
+    ecommerce_description: typeof t.description_ecommerce === 'string' ? t.description_ecommerce : null,
     attributes,
     variants: allVariants.map(av => ({
       id: av.id,
@@ -373,5 +388,55 @@ export async function getPublicPartnerId() {
     return partners.length ? partners[0].id : 1; // Fallback to 1 or admin
   } catch {
     return 1;
+  }
+}
+
+/**
+ * Tracks an order by its reference name (e.g., S00010) and customer email.
+ * Securely cross-references the partner's email.
+ */
+export async function trackOrder(orderRef: string, email: string) {
+  try {
+    // Strip # or whitespace
+    const cleanRef = orderRef.replace(/^#+/, '').trim();
+    
+    // Search flexibly: exact match, or ends with the number they typed (in case Odoo stripped S0 prefixes)
+    const orders = await callOdoo<any[]>('sale.order', 'search_read', [
+       ['|', ['name', 'ilike', cleanRef], ['id', '=', isNaN(Number(cleanRef)) ? 0 : Number(cleanRef)]]
+    ], {
+      fields: ['id', 'name', 'state', 'amount_total', 'date_order', 'partner_id'],
+      limit: 1
+    });
+
+    console.log(`[Tracking] Searched for: ${cleanRef}, Found: ${orders.length ? orders[0].name : 'None'}`);
+
+    if (!orders.length) return null;
+    const order = orders[0];
+
+    const partnerId = order.partner_id[0];
+    const partners = await callOdoo<any[]>('res.partner', 'search_read', [
+      [['id', '=', partnerId]]
+    ], { fields: ['email'], limit: 1 });
+
+    const partnerEmail = (partners[0]?.email || '').toLowerCase().trim();
+    const inputEmail = email.toLowerCase().trim();
+
+    console.log(`[Tracking] Comparing emails: Odoo (${partnerEmail}) vs Input (${inputEmail})`);
+
+    if (partnerEmail !== inputEmail) {
+       console.log(`[Tracking] Security match failed. Incorrect Email.`);
+       return null; // Security check failed
+    }
+
+    return {
+      orderNumber: order.name,
+      status: order.state,
+      total: order.amount_total,
+      date: order.date_order,
+      customerName: order.partner_id[1]
+    };
+  } catch (err) {
+    console.error('[Odoo] trackOrder error:', err);
+    return null;
   }
 }

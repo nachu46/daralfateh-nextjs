@@ -136,16 +136,13 @@ export default function ProductDetailPage({ params }: PageProps) {
           {/* Image Panel */}
           <div className="flex flex-col gap-6">
             <div className="relative">
-              <div className="absolute top-6 left-6 z-10 bg-[#C8A97E] text-white text-[10px] font-black uppercase tracking-[0.2em] px-4 py-2 rounded-full shadow-lg">
-                {discount}% Collection Sale
-              </div>
               <div className="bg-white rounded-[24px] shadow-[0_10px_40px_rgba(0,0,0,0.04)] overflow-hidden aspect-square flex items-center justify-center p-10 group">
                 <img
-                  src={selectedImage || product.image_url || ''}
+                  src={selectedImage || product.image_url || '/api/product-image/0'}
                   alt={product.name}
                   className="w-full h-full object-contain transition-all duration-500 group-hover:scale-105"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://dar-al-fateh.odoo.com/web/image/website.s_cover_default_image';
+                    (e.target as HTMLImageElement).src = '/api/product-image/0';
                   }}
                 />
               </div>
@@ -247,6 +244,29 @@ export default function ProductDetailPage({ params }: PageProps) {
               </div>
             </div>
 
+            {/* Description Section */}
+            <div className="space-y-4 mb-10">
+              <h4 className="text-[11px] font-black text-[#2C2C2C] uppercase tracking-[0.2em]">Product Details</h4>
+              <div className="prose prose-sm max-w-none text-[#666] leading-relaxed font-medium italic">
+                {product.ecommerce_description ? (
+                  <div 
+                    dangerouslySetInnerHTML={{ __html: product.ecommerce_description }} 
+                    className="odoo-description"
+                  />
+                ) : product.website_description ? (
+                  <div 
+                    dangerouslySetInnerHTML={{ __html: product.website_description }} 
+                    className="odoo-description"
+                  />
+                ) : (
+                  <p>
+                    {product.description || product.internal_description ||
+                      `Our ${product.name} represents the pinnacle of quality in our collection. Sourced sustainably and handled with utmost precision to ensure excellence from our pantry to your table.`}
+                  </p>
+                )}
+              </div>
+            </div>
+
             {/* Actions */}
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
               <button
@@ -270,23 +290,7 @@ export default function ProductDetailPage({ params }: PageProps) {
               ))}
             </div>
 
-            {/* Description Section */}
-            <div className="space-y-4">
-              <h4 className="text-[11px] font-black text-[#2C2C2C] uppercase tracking-[0.2em]">Product Details</h4>
-              <div className="prose prose-sm max-w-none text-[#666] leading-relaxed font-medium italic">
-                {product.website_description ? (
-                  <div 
-                    dangerouslySetInnerHTML={{ __html: product.website_description }} 
-                    className="odoo-description"
-                  />
-                ) : (
-                  <p>
-                    {product.description || product.internal_description ||
-                      `Our ${product.name} represents the pinnacle of quality in our collection. Sourced sustainably and handled with utmost precision to ensure excellence from our pantry to your table.`}
-                  </p>
-                )}
-              </div>
-            </div>
+
           </div>
         </div>
 

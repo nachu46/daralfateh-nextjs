@@ -88,8 +88,8 @@ export default function CartPage() {
                       <span className="text-[#2C2C2C]">AED {totalAmount.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-[#999] text-[10px] font-black uppercase tracking-[0.3em]">
-                      <span>Bespoke Delivery</span>
-                      <span className="text-emerald-500">Free</span>
+                      <span>Shipping</span>
+                      <span className="text-[#C8A97E] font-bold">Free</span>
                     </div>
                     <div className="flex justify-between items-end pt-8 border-t border-[#F5F5F5]">
                       <div className="flex flex-col">
