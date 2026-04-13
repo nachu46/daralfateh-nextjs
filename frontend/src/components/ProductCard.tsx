@@ -6,6 +6,19 @@ import { useCartStore } from '@/store/useCartStore';
 import { useToastStore } from '@/store/useToastStore';
 import { useState } from 'react';
 
+export interface ProductAttribute {
+  id: number;
+  name: string;
+  values: { id: number; name: string }[];
+}
+
+export interface ProductVariant {
+  id: number;
+  name: string;
+  price: number;
+  attribute_value_ids: number[];
+}
+
 export interface Product {
   id: number;
   name: string;
@@ -14,6 +27,12 @@ export interface Product {
   hover_image_url?: string | null;
   category: { id: number; name: string }[];
   badge?: string;
+  description?: string;
+  attributes?: ProductAttribute[];
+  variants?: ProductVariant[];
+  extra_images?: string[];
+  website_description?: string;
+  internal_description?: string;
 }
 
 export default function ProductCard({ product }: { product: Product }) {
@@ -35,7 +54,6 @@ export default function ProductCard({ product }: { product: Product }) {
   const handleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setWishlisted(w => !w);
   };
 
   const displayImage = hovered && product.hover_image_url
@@ -55,48 +73,54 @@ export default function ProductCard({ product }: { product: Product }) {
         </div>
       )}
 
-      {/* Wishlist */}
-      <button
-        onClick={handleWishlist}
-        className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white shadow flex items-center justify-center transition-all ${wishlisted ? 'text-[#C8A97E]' : 'text-[#CCC] hover:text-[#C8A97E]'} opacity-0 group-hover:opacity-100`}
-      >
-        <Heart size={15} fill={wishlisted ? "currentColor" : "none"} strokeWidth={1.5} />
-      </button>
-
-      {/* Product Image */}
-      <Link href={`/product/${product.id}`} className="block relative overflow-hidden bg-[#F9F9F9]" style={{ height: '200px' }}>
+      {/* Product Image — two-image crossfade on hover */}
+      <Link href={`/product/${product.id}`} className="block relative overflow-hidden bg-[#F9F9F9]" style={{ height: '220px' }}>
+        {/* Primary image */}
         <img
-          src={displayImage}
+          src={product.image_url || '/placeholder.png'}
           alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-105 ${
+            hovered && product.hover_image_url ? 'opacity-0' : 'opacity-100'
+          }`}
         />
+        {/* Hover image — only rendered when available */}
+        {product.hover_image_url && (
+          <img
+            src={product.hover_image_url}
+            alt={`${product.name} – detail`}
+            className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-105 ${
+              hovered ? 'opacity-100' : 'opacity-0'
+            }`}
+          />
+        )}
       </Link>
 
       {/* Product Details */}
-      <div className="p-4 flex-grow flex flex-col">
-        <p className="text-[9px] uppercase tracking-[0.15em] text-[#C8A97E] font-black mb-1">
+      <div className="p-6 flex-grow flex flex-col gap-3">
+        <p className="text-[10px] uppercase tracking-[0.35em] text-[#C8A97E] font-black">
           {product.category[0]?.name || 'Fresh'}
         </p>
-        <Link href={`/product/${product.id}`}>
-          <h3 className="text-[13px] font-semibold text-[#2C2C2C] line-clamp-2 leading-snug hover:text-[#C8A97E] transition-colors mb-3">
+        
+        <Link href={`/product/${product.id}`} className="group/title">
+          <h3 className="text-[15px] font-extrabold text-[#2C2C2C] uppercase tracking-tight leading-[1.2] line-clamp-2 transition-colors mb-2">
             {product.name}
           </h3>
         </Link>
 
-        <div className="mt-auto flex items-center justify-between gap-2">
-          <span className="text-[15px] font-bold text-[#2C2C2C]">
+        <div className="mt-auto pt-2 flex items-center justify-between gap-4">
+          <span className="text-[17px] font-black text-[#2C2C2C]">
             AED {product.price.toFixed(2)}
           </span>
           <button
             onClick={handleAddToCart}
             disabled={added}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all shadow-sm flex-shrink-0 ${
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-[0.25em] transition-all flex-shrink-0 ${
               added
-                ? 'bg-emerald-500 text-white'
-                : 'bg-[#F7F3EF] text-[#C8A97E] hover:bg-[#C8A97E] hover:text-white'
+                ? 'bg-black text-white'
+                : 'bg-[#F7F3EF] text-[#C8A97E] hover:bg-black hover:text-white'
             }`}
           >
-            {added ? <Check size={13} strokeWidth={3} /> : <Plus size={13} strokeWidth={3} />}
+            {added ? <Check size={12} strokeWidth={4} /> : <Plus size={12} strokeWidth={4} />}
             {added ? 'Added' : 'Add'}
           </button>
         </div>

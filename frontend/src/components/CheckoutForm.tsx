@@ -14,6 +14,9 @@ export default function CheckoutForm({ onSubmit, isLoading }: CheckoutFormProps)
     email: "",
     phone: "",
     street: "",
+    city: "",
+    zip: "",
+    country_name: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,16 +31,18 @@ export default function CheckoutForm({ onSubmit, isLoading }: CheckoutFormProps)
   return (
     <div className="bg-white p-8 md:p-12 rounded-none border border-[#EAEAEA] shadow-[0_20px_80px_rgba(0,0,0,0.04)]">
       <div className="mb-10">
-        <h2 className="text-[11px] font-black text-[#C8A97E] uppercase tracking-[0.4em] mb-3" style={{ fontFamily: 'var(--font-outfit)' }}>
-          Guest Checkout
+        <h2 className="text-[10px] font-black text-[#C8A97E] uppercase tracking-[0.65em] mb-4">
+          Bespoke Checkout
         </h2>
-        <p className="text-xl font-bold text-[#2C2C2C] uppercase tracking-tighter">Your Delivery Information</p>
+        <p className="text-2xl font-black text-[#2C2C2C] uppercase tracking-tighter">
+          Your Delivery Information
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-[#AAA] uppercase tracking-widest pl-1">Full Name</label>
+          <div className="space-y-3">
+            <label className="text-[9px] font-black text-[#AAA] uppercase tracking-[0.4em] pl-1">Full Name</label>
             <div className="relative group">
               <input
                 required
@@ -51,8 +56,8 @@ export default function CheckoutForm({ onSubmit, isLoading }: CheckoutFormProps)
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-[#AAA] uppercase tracking-widest pl-1">Email Address</label>
+          <div className="space-y-3">
+            <label className="text-[9px] font-black text-[#AAA] uppercase tracking-[0.4em] pl-1">Email Address</label>
             <div className="relative group">
               <input
                 required
@@ -69,8 +74,8 @@ export default function CheckoutForm({ onSubmit, isLoading }: CheckoutFormProps)
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-[#AAA] uppercase tracking-widest pl-1">Phone Number</label>
+          <div className="space-y-3">
+            <label className="text-[9px] font-black text-[#AAA] uppercase tracking-[0.4em] pl-1">Phone Number</label>
             <div className="relative group">
               <input
                 required
@@ -84,8 +89,8 @@ export default function CheckoutForm({ onSubmit, isLoading }: CheckoutFormProps)
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-[#AAA] uppercase tracking-widest pl-1">Street Address</label>
+          <div className="space-y-3">
+            <label className="text-[9px] font-black text-[#AAA] uppercase tracking-[0.4em] pl-1">Street Address</label>
             <div className="relative group">
               <input
                 required
@@ -100,17 +105,52 @@ export default function CheckoutForm({ onSubmit, isLoading }: CheckoutFormProps)
           </div>
         </div>
 
-        <div className="pt-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="space-y-3">
+            <label className="text-[9px] font-black text-[#AAA] uppercase tracking-[0.4em] pl-1">City</label>
+            <input
+              required
+              name="city"
+              value={formData.city}
+              onChange={handleChange}
+              placeholder="Dubai"
+              className="w-full bg-[#F7F3EF] border-transparent focus:border-[#C8A97E] focus:bg-white rounded-none py-4 px-4 text-[13px] font-semibold text-[#2C2C2C] focus:outline-none transition-all duration-300"
+            />
+          </div>
+          <div className="space-y-3">
+            <label className="text-[9px] font-black text-[#AAA] uppercase tracking-[0.4em] pl-1">ZIP / Postal</label>
+            <input
+              required
+              name="zip"
+              value={formData.zip}
+              onChange={handleChange}
+              placeholder="00000"
+              className="w-full bg-[#F7F3EF] border-transparent focus:border-[#C8A97E] focus:bg-white rounded-none py-4 px-4 text-[13px] font-semibold text-[#2C2C2C] focus:outline-none transition-all duration-300"
+            />
+          </div>
+          <div className="space-y-3">
+            <label className="text-[9px] font-black text-[#AAA] uppercase tracking-[0.4em] pl-1">Country</label>
+            <input
+              required
+              name="country_name"
+              value={formData.country_name}
+              onChange={handleChange}
+              placeholder="United Arab Emirates"
+              className="w-full bg-[#F7F3EF] border-transparent focus:border-[#C8A97E] focus:bg-white rounded-none py-4 px-4 text-[13px] font-semibold text-[#2C2C2C] focus:outline-none transition-all duration-300"
+            />
+          </div>
+        </div>
+
+        <div className="pt-8">
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-[#C8A97E] text-white py-6 rounded-none font-black text-[11px] uppercase tracking-[0.4em] hover:bg-[#111] transition-all flex items-center justify-center gap-4 shadow-xl active:scale-[0.99] disabled:bg-[#CCC]"
-            style={{ fontFamily: 'var(--font-outfit)' }}
+            className="w-full bg-[#C8A97E] text-white py-6 rounded-none font-black text-[12px] uppercase tracking-[0.55em] hover:bg-[#111] transition-all flex items-center justify-center gap-4 shadow-2xl active:scale-[0.99] disabled:bg-[#CCC] shadow-[#C8A97E]/20"
           >
             {isLoading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Preparing Secure Portal...
+                Securing Tunnel...
               </>
             ) : (
               <>
@@ -120,7 +160,7 @@ export default function CheckoutForm({ onSubmit, isLoading }: CheckoutFormProps)
             )}
           </button>
         </div>
-        <p className="text-[9px] text-center text-[#CCC] font-bold uppercase tracking-widest mt-4">
+        <p className="text-[9px] text-center text-[#CCC] font-black uppercase tracking-[0.35em] mt-6">
           All customer data is synchronized securely with the Odoo portal.
         </p>
       </form>

@@ -48,103 +48,88 @@ export default function Footer() {
       </div>
 
       {/* Main Footer Content */}
-      <div className="container mx-auto px-4 max-w-[1500px] py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
-          {/* Brand Column */}
-          <div className="lg:col-span-2 pr-8">
-            <Link href="/" className="inline-flex flex-col mb-6 group">
-              <span className="text-3xl font-black text-[#2C2C2C] leading-none tracking-[-0.03em] uppercase group-hover:text-[#C8A97E] transition-colors">
-                Dar Al Fateh
-              </span>
-              <span className="text-[9px] font-bold text-[#C8A97E] tracking-[0.4em] mt-1.5 uppercase">International</span>
-            </Link>
-            <p className="text-[#666] text-sm leading-relaxed mb-8 max-w-sm">
-              Your trusted purveyor of premium provisions. Curated selections delivered with unparalleled excellence across the UAE.
-            </p>
-            <div className="flex flex-col gap-3.5 text-sm text-[#555] font-medium">
-              <a href="tel:+97145551234" className="flex items-center gap-3 hover:text-[#C8A97E] transition-colors">
-                <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm">
-                  <Phone className="w-3.5 h-3.5 text-[#C8A97E]" />
-                </div>
-                +971 4 555 1234
-              </a>
-              <a href="mailto:hello@daralfateh.ae" className="flex items-center gap-3 hover:text-[#C8A97E] transition-colors">
-                <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm">
-                  <Mail className="w-3.5 h-3.5 text-[#C8A97E]" />
-                </div>
-                hello@daralfateh.ae
-              </a>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm flex-shrink-0">
-                  <MapPin className="w-3.5 h-3.5 text-[#C8A97E]" />
-                </div>
-                <span>Premium District, Dubai, UAE</span>
-              </div>
+      <div className="container mx-auto px-4 max-w-[1500px] py-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16">
+          
+          {/* Section 1: Useful Links */}
+          <div className="flex flex-col gap-8">
+            <h4 className="font-black text-[12px] uppercase tracking-[0.4em] text-[#C8A97E]">Useful Links</h4>
+            <ul className="flex flex-col gap-4">
+              {['Home', 'About Us', 'Products', 'Services', 'Legal', 'Contact Us'].map((label) => (
+                <li key={label}>
+                  <Link href={label === 'Home' ? '/' : `/${label.toLowerCase().replace(' ', '-')}`} className="text-[#666] text-[13px] hover:text-[#C8A97E] hover:translate-x-1 inline-block transition-all font-bold uppercase tracking-widest">
+                    {label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Section 2: About us */}
+          <div className="flex flex-col gap-8">
+            <h4 className="font-black text-[12px] uppercase tracking-[0.4em] text-[#C8A97E]">About us</h4>
+            <div className="space-y-6">
+              <p className="text-[#666] text-sm leading-relaxed font-medium">
+                We are a team of passionate people whose goal is to improve everyone&apos;s life through disruptive products. We build great products to solve your business problems.
+              </p>
+              <p className="text-[#666] text-sm leading-relaxed font-medium">
+                Our products are designed for small to medium size companies willing to optimize their performance.
+              </p>
             </div>
           </div>
 
-          {/* Shop Links */}
-          <div>
-            <h4 className="font-black text-[11px] uppercase tracking-[0.2em] text-[#C8A97E] mb-6">Explore</h4>
-            <ul className="flex flex-col gap-3">
-              {footerLinks.shop.map(link => (
-                <li key={link.href}>
-                  <Link href={link.href} className="text-[#666] text-sm hover:text-[#2C2C2C] hover:translate-x-1 inline-block transition-all font-medium">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Section 3: Connect with us */}
+          <div className="flex flex-col gap-8">
+            <h4 className="font-black text-[12px] uppercase tracking-[0.4em] text-[#C8A97E]">Connect with us</h4>
+            <div className="flex flex-col gap-6 text-sm text-[#555] font-medium">
+              <Link href="/contact" className="flex items-center gap-4 hover:text-[#C8A97E] transition-colors group">
+                <div className="w-6 h-6 flex items-center justify-center">
+                  <Mail className="w-5 h-5 text-[#C8A97E]" />
+                </div>
+                Contact us
+              </Link>
+              <a href="mailto:info@daralfateh.ae" className="flex items-center gap-4 hover:text-[#C8A97E] transition-colors">
+                <div className="w-6 h-6 flex items-center justify-center">
+                  <Mail className="w-5 h-5 text-[#C8A97E]" />
+                </div>
+                info@daralfateh.ae
+              </a>
+              <a href="tel:+97145551234" className="flex items-center gap-4 hover:text-[#C8A97E] transition-colors">
+                <div className="w-6 h-6 flex items-center justify-center">
+                  <Phone className="w-5 h-5 text-[#C8A97E]" />
+                </div>
+                +971 4 555 1234
+              </a>
+            </div>
 
-          {/* Account Links */}
-          <div>
-            <h4 className="font-black text-[11px] uppercase tracking-[0.2em] text-[#C8A97E] mb-6">Client Services</h4>
-            <ul className="flex flex-col gap-3">
-              {footerLinks.account.map(link => (
-                <li key={link.href}>
-                  <Link href={link.href} className="text-[#666] text-sm hover:text-[#2C2C2C] hover:translate-x-1 inline-block transition-all font-medium">
-                    {link.label}
-                  </Link>
-                </li>
+            {/* Social Icons - White Circles */}
+            <div className="flex items-center gap-4 pt-4">
+              {[
+                { label: 'FB', path: 'M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z' },
+                { label: 'X', path: 'M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932 6.064-6.932zm-1.292 19.493h2.039L6.486 3.24H4.298l13.311 17.406z' },
+                { label: 'LI', path: 'M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z' },
+                { label: 'HM', path: 'M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z' }
+              ].map((icon, i) => (
+                <a key={i} href="#" className="w-12 h-12 rounded-full bg-white flex items-center justify-center transition-all hover:bg-[#C8A97E] group shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-[#EEE] hover:border-transparent">
+                  <svg className="w-5 h-5 fill-current text-[#C8A97E] group-hover:text-white transition-colors" viewBox="0 0 24 24">
+                    <path d={icon.path} />
+                  </svg>
+                </a>
               ))}
-            </ul>
-          </div>
-
-          {/* Info Links */}
-          <div>
-            <h4 className="font-black text-[11px] uppercase tracking-[0.2em] text-[#C8A97E] mb-6">The Brand</h4>
-            <ul className="flex flex-col gap-3">
-              {footerLinks.info.map(link => (
-                <li key={link.href}>
-                  <Link href={link.href} className="text-[#666] text-sm hover:text-[#2C2C2C] hover:translate-x-1 inline-block transition-all font-medium">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-[#EAEAEA] bg-white py-6 px-4">
-        <div className="container mx-auto max-w-[1500px] flex flex-col md:flex-row items-center justify-between gap-6">
-          <p className="text-[#999] text-xs font-bold uppercase tracking-widest">
+      <div className="border-t border-[#EAEAEA] bg-white/50 backdrop-blur-sm py-10 px-4">
+        <div className="container mx-auto max-w-[1500px] flex flex-col md:flex-row items-center justify-between gap-8">
+          <p className="text-[#AAA] text-[10px] font-black uppercase tracking-[0.3em]">
             © {new Date().getFullYear()} Dar Al Fateh. Quality Guaranteed.
           </p>
-          {/* Social Icons */}
-          <div className="flex items-center gap-3">
-            {[
-              { label: 'IG', href: '#', path: 'M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z' },
-              { label: 'FB', href: '#', path: 'M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z' },
-              { label: 'YT', href: '#', path: 'M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z' },
-            ].map(({ label: _label, href, path }, i) => (
-              <a key={i} href={href} className="w-10 h-10 rounded-full bg-[#F7F3EF] hover:bg-[#C8A97E] flex items-center justify-center transition-all group shadow-sm border border-[#EAEAEA] hover:border-transparent">
-                <svg className="w-4 h-4 fill-current text-[#999] group-hover:text-white transition-colors" viewBox="0 0 24 24"><path d={path} /></svg>
-              </a>
-            ))}
-          </div>
+          <Link href="/" className="h-8 opacity-50 hover:opacity-100 transition-opacity">
+            <img src="/api/logo" alt="Dar Al Fateh Group" className="h-full w-auto grayscale" />
+          </Link>
         </div>
       </div>
     </footer>

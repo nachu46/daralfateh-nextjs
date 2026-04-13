@@ -5,7 +5,6 @@ import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, ChevronLeft } from "lucid
 import Link from "next/link";
 import { useEffect, useState, useMemo } from "react";
 import EmptyCart from "@/components/EmptyCart";
-import CheckoutForm from "@/components/CheckoutForm";
 
 export default function CartPage() {
   const items = useCartStore((state) => state.items);
@@ -19,35 +18,10 @@ export default function CartPage() {
   }, [items]);
 
   const [mounted, setMounted] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [checkoutStep, setCheckoutStep] = useState<'review' | 'details'>('review');
 
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  const handleCheckout = async (customerDetails: any) => {
-    try {
-      setIsProcessing(true);
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items, customer: customerDetails }),
-      });
-      const data = await res.json();
-      if (data.paymentUrl) {
-        // Clear local cart before redirecting
-        clearCart();
-        window.location.href = data.paymentUrl;
-      } else {
-        alert("Operation Error: " + data.error);
-        setIsProcessing(false);
-      }
-    } catch (e) {
-      alert("We encountered an error connecting to Odoo.");
-      setIsProcessing(false);
-    }
-  };
 
   if (!mounted) return null;
 
@@ -75,39 +49,31 @@ export default function CartPage() {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
             {/* Left side: Cart Items or Checkout Form */}
-            <div className="lg:col-span-8 flex flex-col gap-10">
-              {checkoutStep === 'review' ? (
-                <div className="space-y-8">
-                  {items.map((item) => (
-                    <div key={item.id} className="bg-white p-8 rounded-none border border-[#EAEAEA] shadow-[0_10px_40px_rgba(0,0,0,0.03)] flex flex-col md:flex-row gap-8 group">
-                      <div className="w-full md:w-40 h-40 bg-[#F9F9F9] p-4 flex items-center justify-center flex-shrink-0">
-                        <img src={item.image_url!} alt={item.name} className="w-full h-full object-contain mix-blend-multiply transition-transform duration-700 group-hover:scale-105" />
-                      </div>
-                      <div className="flex-1 flex flex-col justify-center">
-                        <div className="text-[10px] font-black text-[#C8A97E] uppercase tracking-[0.3em] mb-2" style={{ fontFamily: 'var(--font-outfit)' }}>
-                          {item.category[0]?.name || 'Pantry Item'}
+            <div className="lg:col-span-8 space-y-8">
+              {items.map((item) => (
+                <div key={item.id} className="bg-white p-8 rounded-none border border-[#EAEAEA] shadow-[0_10px_40px_rgba(0,0,0,0.03)] flex flex-col md:flex-row gap-8 group">
+                  <div className="w-full md:w-40 h-40 bg-[#F9F9F9] p-4 flex items-center justify-center flex-shrink-0">
+                    <img src={item.image_url!} alt={item.name} className="w-full h-full object-contain mix-blend-multiply transition-transform duration-700 group-hover:scale-105" />
+                  </div>
+                  <div className="flex-1 flex flex-col justify-center">
+                    <div className="text-[10px] font-black text-[#C8A97E] uppercase tracking-[0.3em] mb-2" style={{ fontFamily: 'var(--font-outfit)' }}>
+                      {item.category[0]?.name || 'Pantry Item'}
+                    </div>
+                    <h3 className="text-xl font-bold text-[#2C2C2C] uppercase tracking-tighter mb-4 leading-tight">{item.name}</h3>
+                    <div className="flex items-center justify-between mt-auto pt-4 border-t border-[#F5F5F5]">
+                      <div className="text-lg font-bold text-[#2C2C2C]">AED {item.price.toFixed(2)}</div>
+                      <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-4 bg-[#F7F3EF] px-3 py-1.5 border border-[#EAEAEA]">
+                          <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="text-[#AAA] hover:text-[#C8A97E] transition-colors"><Minus size={14} strokeWidth={3} /></button>
+                          <span className="text-[12px] font-black text-[#2C2C2C] w-4 text-center">{item.quantity}</span>
+                          <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="text-[#AAA] hover:text-[#C8A97E] transition-colors"><Plus size={14} strokeWidth={3} /></button>
                         </div>
-                        <h3 className="text-xl font-bold text-[#2C2C2C] uppercase tracking-tighter mb-4 leading-tight">{item.name}</h3>
-                        <div className="flex items-center justify-between mt-auto pt-4 border-t border-[#F5F5F5]">
-                          <div className="text-lg font-bold text-[#2C2C2C]">AED {item.price.toFixed(2)}</div>
-                          <div className="flex items-center gap-6">
-                            <div className="flex items-center gap-4 bg-[#F7F3EF] px-3 py-1.5 border border-[#EAEAEA]">
-                              <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="text-[#AAA] hover:text-[#C8A97E] transition-colors"><Minus size={14} strokeWidth={3} /></button>
-                              <span className="text-[12px] font-black text-[#2C2C2C] w-4 text-center">{item.quantity}</span>
-                              <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="text-[#AAA] hover:text-[#C8A97E] transition-colors"><Plus size={14} strokeWidth={3} /></button>
-                            </div>
-                            <button onClick={() => removeItem(item.id)} className="text-[#CCC] hover:text-[#2C2C2C] transition-colors p-2"><Trash2 size={18} strokeWidth={1.5} /></button>
-                          </div>
-                        </div>
+                        <button onClick={() => removeItem(item.id)} className="text-[#CCC] hover:text-[#2C2C2C] transition-colors p-2"><Trash2 size={18} strokeWidth={1.5} /></button>
                       </div>
                     </div>
-                  ))}
+                  </div>
                 </div>
-              ) : (
-                <div className="animate-in slide-in-from-left-4 duration-500">
-                  <CheckoutForm onSubmit={handleCheckout} isLoading={isProcessing} />
-                </div>
-              )}
+              ))}
             </div>
 
             {/* Right side: Order Summary */}
@@ -135,23 +101,13 @@ export default function CartPage() {
                 </div>
 
                 <div className="space-y-4 pt-10">
-                  {checkoutStep === 'review' ? (
-                    <button 
-                      onClick={() => setCheckoutStep('details')}
-                      className="w-full bg-[#C8A97E] text-white py-6 rounded-none font-black text-[11px] uppercase tracking-[0.4em] hover:bg-[#111] transition-all flex items-center justify-center gap-4 shadow-xl active:scale-[0.99] group"
-                    >
-                      Bespoke Checkout
-                      <ArrowRight size={16} strokeWidth={3} className="group-hover:translate-x-1 transition-transform" />
-                    </button>
-                  ) : (
-                    <button 
-                      onClick={() => setCheckoutStep('review')}
-                      className="w-full text-center text-[10px] font-black text-[#AAA] uppercase tracking-[0.2em] hover:text-[#C8A97E] transition-colors py-2 flex items-center justify-center gap-2"
-                    >
-                      <ChevronLeft size={12} />
-                      Review Full Pantry
-                    </button>
-                  )}
+                  <Link 
+                    href="/checkout"
+                    className="w-full bg-[#C8A97E] text-white py-6 rounded-none font-black text-[11px] uppercase tracking-[0.4em] hover:bg-[#111] transition-all flex items-center justify-center gap-4 shadow-xl active:scale-[0.99] group"
+                  >
+                    Continue to Checkout
+                    <ArrowRight size={16} strokeWidth={3} className="group-hover:translate-x-1 transition-transform" />
+                  </Link>
                 </div>
 
                 <div className="pt-10 border-t border-[#F5F5F5]">

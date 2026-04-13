@@ -13,15 +13,18 @@ export default function HeroBanner() {
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80"
           />
           <div className="relative z-10 p-10">
-            <p className="text-[#C8A97E] text-[11px] font-black uppercase tracking-[0.35em] mb-3">Premium Selection</p>
-            <h2 className="text-white text-4xl md:text-5xl font-black leading-[1.05] tracking-tight mb-6 max-w-sm drop-shadow-md">
+            <p className="text-[#C8A97E] text-[11px] font-black uppercase tracking-[0.65em] mb-4">
+              Premium Selection
+            </p>
+            <h2 className="text-white text-4xl md:text-6xl font-extrabold leading-[1] tracking-tighter mb-8 max-w-sm drop-shadow-2xl">
               Farm-Fresh Daily Deliveries
             </h2>
             <Link
               href="/shop"
-              className="inline-flex items-center gap-2 bg-white text-[#2C2C2C] font-black text-[11px] uppercase tracking-[0.2em] px-8 py-4 rounded-full hover:bg-[#C8A97E] hover:text-white transition-all shadow-xl"
+              className="inline-flex items-center gap-4 bg-white text-[#2C2C2C] font-black text-[11px] uppercase tracking-[0.45em] px-10 py-5 rounded-none hover:bg-[#C8A97E] hover:text-white transition-all shadow-2xl group"
             >
-              Shop Now →
+              Shop Selection
+              <span className="group-hover:translate-x-1 transition-transform">→</span>
             </Link>
           </div>
         </div>

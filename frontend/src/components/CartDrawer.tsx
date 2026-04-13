@@ -62,62 +62,71 @@ export default function CartDrawer() {
         }`}
       >
         {/* Header */}
-        <div className="p-8 border-b border-[#EAEAEA] bg-white flex items-center justify-between">
+        <div className="p-10 border-b border-[#EAEAEA] bg-white flex items-center justify-between">
           <div className="flex flex-col gap-1">
-            <h2 className="text-[11px] font-black text-[#C8A97E] uppercase tracking-[0.4em] leading-none mb-1" style={{ fontFamily: 'var(--font-outfit)' }}>
-              Selection
+            <h2 className="text-[10px] font-black text-[#C8A97E] uppercase tracking-[0.5em] leading-none mb-1">
+              Pantry Selection
             </h2>
             <div className="flex items-center gap-4">
-              <span className="text-xl font-bold text-[#2C2C2C] uppercase tracking-tighter">Current Pantry</span>
-              <span className="bg-[#F7F3EF] text-[#2C2C2C] text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-widest">
+              <span className="text-2xl font-black text-[#2C2C2C] uppercase tracking-tighter">
+                Your Bouquet
+              </span>
+              <span className="bg-[#F7F3EF] text-[#C8A97E] text-[9px] font-black px-3 py-1 rounded-none uppercase tracking-[0.2em]">
                 {items.reduce((acc, item) => acc + item.quantity, 0)} Items
               </span>
             </div>
           </div>
           <button 
             onClick={closeCart}
-            className="w-12 h-12 rounded-full hover:bg-[#F7F3EF] flex items-center justify-center transition-all duration-300 text-[#CCC] hover:text-[#2C2C2C] hover:rotate-90"
+            className="w-10 h-10 rounded-none border border-[#F0F0F0] hover:bg-[#F7F3EF] flex items-center justify-center transition-all duration-500 text-[#CCC] hover:text-[#C8A97E] group"
           >
-            <X size={22} strokeWidth={1} />
+            <X size={18} strokeWidth={1} className="group-hover:rotate-90 transition-transform" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-10 space-y-10 custom-scrollbar bg-white/50">
           {items.length === 0 ? (
             <EmptyCart isDrawer />
           ) : (
             items.map((item) => (
-              <div key={item.id} className="flex gap-6 group animate-in slide-in-from-right-8 duration-500">
-                <div className="w-20 h-20 bg-white rounded-none p-3 flex-shrink-0 border border-[#F0F0F0] shadow-sm overflow-hidden flex items-center justify-center relative">
-                  <img src={item.image_url!} alt={item.name} className="w-full h-full object-contain mix-blend-multiply transition-transform duration-700 group-hover:scale-110" />
+              <div key={item.id} className="flex gap-8 group animate-in slide-in-from-right-8 duration-700">
+                <div className="w-24 h-24 bg-white rounded-none p-4 flex-shrink-0 border border-[#F5F5F5] shadow-sm overflow-hidden flex items-center justify-center relative">
+                  <img src={item.image_url!} alt={item.name} className="w-full h-full object-contain mix-blend-multiply transition-transform duration-1000 group-hover:scale-110" />
                 </div>
-                <div className="flex-1 flex flex-col justify-center">
-                  <h3 className="text-[11px] font-black text-[#2C2C2C] uppercase tracking-[0.1em] leading-tight mb-2 line-clamp-1" style={{ fontFamily: 'var(--font-outfit)' }}>{item.name}</h3>
+                <div className="flex-1 flex flex-col justify-center gap-4">
+                  <div className="flex justify-between items-start gap-4">
+                    <h3 className="text-[13px] font-black text-[#2C2C2C] uppercase tracking-[0.1em] leading-tight line-clamp-2" style={{ fontFamily: 'var(--font-outfit)' }}>
+                      {item.name}
+                    </h3>
+                    <button 
+                      onClick={() => removeItem(item.id)}
+                      className="text-[#DDD] hover:text-[#F87171] transition-colors p-1"
+                    >
+                      <Trash2 size={12} strokeWidth={2} />
+                    </button>
+                  </div>
+                  
                   <div className="flex items-center justify-between">
-                    <p className="text-[10px] font-bold text-[#C8A97E] uppercase tracking-[0.2em]" style={{ fontFamily: 'var(--font-outfit)' }}>AED {item.price.toFixed(2)}</p>
+                    <p className="text-[12px] font-bold text-[#C8A97E] uppercase tracking-[0.2em]" style={{ fontFamily: 'var(--font-outfit)' }}>
+                      AED {item.price.toFixed(2)}
+                    </p>
                     
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-3 bg-[#F7F3EF] px-2 py-0.5 rounded-none border border-[#EAEAEA]">
-                        <button 
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="text-[#AAA] hover:text-[#C8A97E] transition-colors"
-                        >
-                          <Minus size={10} strokeWidth={4} />
-                        </button>
-                        <span className="text-[10px] font-black text-[#2C2C2C] w-3 text-center">{item.quantity}</span>
-                        <button 
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="text-[#AAA] hover:text-[#C8A97E] transition-colors"
-                        >
-                          <Plus size={10} strokeWidth={4} />
-                        </button>
-                      </div>
+                    <div className="flex items-center gap-6 bg-[#F7F3EF] px-3 py-1 border border-[#F0F0F0]">
                       <button 
-                        onClick={() => removeItem(item.id)}
-                        className="text-[#CCC] hover:text-[#2C2C2C] transition-colors p-1"
+                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        className="text-[#AAA] hover:text-[#C8A97E] transition-colors"
                       >
-                        <X size={14} />
+                        <Minus size={10} strokeWidth={3} />
+                      </button>
+                      <span className="text-[11px] font-black text-[#2C2C2C] w-4 text-center" style={{ fontFamily: 'var(--font-outfit)' }}>
+                        {item.quantity}
+                      </span>
+                      <button 
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        className="text-[#AAA] hover:text-[#C8A97E] transition-colors"
+                      >
+                        <Plus size={10} strokeWidth={3} />
                       </button>
                     </div>
                   </div>
@@ -129,20 +138,21 @@ export default function CartDrawer() {
 
         {/* Footer */}
         {items.length > 0 && (
-          <div className="p-10 bg-white border-t border-[#EAEAEA] space-y-8">
-            <div className="space-y-4">
-              <div className="flex justify-between text-[#999] text-[10px] font-black uppercase tracking-[0.3em]" style={{ fontFamily: 'var(--font-outfit)' }}>
+          <div className="p-10 bg-white border-t border-[#EAEAEA] space-y-10">
+            <div className="space-y-6">
+              <div className="flex justify-between text-[#AAA] text-[10px] font-black uppercase tracking-[0.4em]" style={{ fontFamily: 'var(--font-outfit)' }}>
                 <span>Sub-Total</span>
                 <span className="text-[#2C2C2C]">AED {totalAmount.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-[#999] text-[10px] font-black uppercase tracking-[0.3em]" style={{ fontFamily: 'var(--font-outfit)' }}>
+              <div className="flex justify-between text-[#AAA] text-[10px] font-black uppercase tracking-[0.4em]" style={{ fontFamily: 'var(--font-outfit)' }}>
                 <span>Bespoke Delivery</span>
-                <span className="text-emerald-500">Complimentary</span>
+                <span className="text-[#C8A97E] font-bold">Complimentary</span>
               </div>
-              <div className="flex justify-between items-end pt-6 border-t border-[#F5F5F5]">
+              
+              <div className="pt-8 border-t border-[#F5F5F5] flex justify-between items-end">
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-black text-[#C8A97E] uppercase tracking-[0.3em] mb-1" style={{ fontFamily: 'var(--font-outfit)' }}>Order Total</span>
-                  <span className="text-2xl font-bold text-[#2C2C2C] uppercase tracking-tighter">AED {totalAmount.toFixed(2)}</span>
+                  <span className="text-[10px] font-black text-[#C8A97E] uppercase tracking-[0.5em] mb-1" style={{ fontFamily: 'var(--font-outfit)' }}>Total Selection</span>
+                  <span className="text-3xl font-black text-[#2C2C2C] uppercase tracking-tighter" style={{ fontFamily: 'var(--font-outfit)' }}>AED {totalAmount.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -150,24 +160,24 @@ export default function CartDrawer() {
             <div className="space-y-4">
               <button 
                 onClick={handleCheckout}
-                className="w-full bg-[#C8A97E] text-white py-6 rounded-none font-black text-[11px] uppercase tracking-[0.4em] hover:bg-[#111] transition-all flex items-center justify-center gap-4 shadow-xl active:scale-[0.99] disabled:bg-[#CCC]"
+                className="w-full bg-[#C8A97E] text-white py-6 rounded-none font-black text-[12px] uppercase tracking-[0.5em] hover:bg-[#111] transition-all flex items-center justify-center gap-4 shadow-2xl active:scale-[0.99] group shadow-[#C8A97E]/20"
                 style={{ fontFamily: 'var(--font-outfit)' }}
               >
-                Complete Selection
-                <ArrowRight size={14} strokeWidth={3} />
+                Secure Portal
+                <ArrowRight size={14} strokeWidth={3} className="group-hover:translate-x-1 transition-transform" />
               </button>
               <Link 
                 href="/cart" 
                 onClick={closeCart}
-                className="block text-center text-[10px] font-black text-[#AAA] uppercase tracking-[0.2em] hover:text-[#C8A97E] transition-colors"
+                className="block text-center text-[10px] font-black text-[#CCC] uppercase tracking-[0.3em] hover:text-[#C8A97E] transition-all"
                 style={{ fontFamily: 'var(--font-outfit)' }}
               >
-                Manage Full Pantry
+                Refine Selection →
               </Link>
             </div>
             
-            <p className="text-[9px] text-center text-[#CCC] font-bold uppercase tracking-[0.3em] leading-relaxed">
-              Securely bridged to Odoo 18
+            <p className="text-[8px] text-center text-[#DDD] font-bold uppercase tracking-[0.4em] leading-relaxed">
+              Odoo 18 Bridged Selection
             </p>
           </div>
         )}

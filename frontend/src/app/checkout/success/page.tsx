@@ -1,67 +1,88 @@
 "use client";
 
-import Link from "next/link";
-import { CheckCircle, ShoppingBag, ArrowRight } from "lucide-react";
-import { useEffect } from "react";
-import { useCartStore } from "@/store/useCartStore";
+import { useEffect, useRef, Suspense } from 'react';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { useCartStore } from '@/store/useCartStore';
+import { CheckCircle2, Package, ArrowRight, Hash } from 'lucide-react';
 
 export default function CheckoutSuccessPage() {
-  const clearCart = useCartStore((state) => state.clearCart);
+  return (
+    <Suspense fallback={
+      <div className="bg-[#F7F3EF] min-h-[80vh] flex flex-col justify-center items-center text-[#2C2C2C]">
+        <p className="animate-pulse font-black uppercase tracking-[0.4em] text-[#C8A97E]">Loading Confirmation...</p>
+      </div>
+    }>
+      <CheckoutSuccessContent />
+    </Suspense>
+  );
+}
+
+function CheckoutSuccessContent() {
+  const searchParams = useSearchParams();
+  const orderName = searchParams.get('orderName');
+  const clearCart = useCartStore(state => state.clearCart);
+  const hasCleared = useRef(false);
 
   useEffect(() => {
-    // Ensure cart is cleared upon reaching success
-    clearCart();
+    // Clear cart on mount exactly once 
+    if (!hasCleared.current) {
+      clearCart();
+      hasCleared.current = true;
+    }
   }, [clearCart]);
 
   return (
-    <div className="bg-[#F7F3EF] min-h-screen flex items-center justify-center py-20 px-6">
-      <div className="max-w-xl w-full bg-white p-12 text-center border border-[#EAEAEA] shadow-[0_40px_120px_rgba(0,0,0,0.06)] relative overflow-hidden">
-        {/* Boutique Decorative Background Element */}
-        <div className="absolute top-[-50px] right-[-50px] w-40 h-40 bg-[#F7F3EF] rounded-full opacity-50" />
+    <div className="bg-[#F7F3EF] min-h-[80vh] flex flex-col justify-center items-center relative overflow-hidden px-6">
+      
+      {/* Background glow effects */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#C8A97E] rounded-full blur-[150px] opacity-10 pointer-events-none" />
+
+      <div className="relative z-10 bg-white rounded-[32px] md:rounded-[40px] p-8 md:p-16 max-w-[600px] w-full text-center shadow-[0_20px_40px_rgba(0,0,0,0.05)] border border-[#EAEAEA]">
         
-        <div className="relative z-10">
-          <div className="w-24 h-24 bg-[#E8F5E9] rounded-full flex items-center justify-center mx-auto mb-10 border border-[#C8E6C9] animate-in zoom-in duration-700">
-            <CheckCircle className="text-emerald-500" size={48} strokeWidth={1.5} />
-          </div>
+        <div className="w-20 h-20 md:w-24 md:h-24 bg-[#C8A97E]/20 text-[#C8A97E] rounded-full flex items-center justify-center mx-auto mb-8 border border-[#C8A97E]/30 relative">
+          <div className="absolute inset-0 bg-[#C8A97E] rounded-full animate-ping opacity-20" />
+          <CheckCircle2 className="w-10 h-10 md:w-12 md:h-12" strokeWidth={2.5} />
+        </div>
 
-          <h1 className="text-4xl font-bold text-[#2C2C2C] uppercase tracking-tighter mb-6">
-            Pantry Synchronized ✧
-          </h1>
-          
-          <div className="space-y-6 mb-12">
-            <p className="text-[11px] font-black text-[#C8A97E] uppercase tracking-[0.4em]">
-              Order Successfully Placed
-            </p>
-            <p className="text-[#666] text-sm leading-relaxed max-w-sm mx-auto">
-              Your selection has been securely confirmed in our Odoo 18 system. You will receive a bespoke confirmation email shortly.
-            </p>
-          </div>
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#C8A97E] mb-3">
+          Order Confirmed
+        </p>
 
-          <div className="grid grid-cols-1 gap-4">
-            <Link 
-              href="/shop" 
-              className="bg-[#C8A97E] text-white py-6 rounded-none font-black text-[11px] uppercase tracking-[0.4em] hover:bg-[#111] transition-all flex items-center justify-center gap-4 shadow-xl group"
-            >
-              Continue Boutique Journey
-              <ArrowRight size={16} strokeWidth={3} className="group-hover:translate-x-1 transition-transform" />
-            </Link>
-            
-            <Link 
-              href="/" 
-              className="text-[10px] font-black text-[#AAA] uppercase tracking-[0.3em] py-4 hover:text-[#2C2C2C] transition-colors"
-            >
-              Return to Gallery
-            </Link>
-          </div>
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-[#2C2C2C] uppercase tracking-tight leading-[1.1] mb-6">
+          Thank you for<br />your purchase
+        </h1>
 
-          <div className="mt-16 pt-10 border-t border-[#F5F5F5]">
-            <p className="text-[9px] text-[#CCC] font-bold uppercase tracking-[0.3em] leading-relaxed">
-              Order Managed Natively by Odoo 18 <br/> 
-              ✧ Dar Al Fateh Luxury Pantry ✧
-            </p>
+        <p className="text-[15px] font-medium text-[#AAA] max-w-md mx-auto leading-relaxed mb-10">
+          Your secure payment was successfully processed. A perfectly curated selection of premium produce will soon be dispatched to your delivery address.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
+          <div className="bg-[#F7F3EF] rounded-2xl p-6 border border-[#EAEAEA] flex items-center gap-4 text-left">
+            <Hash size={24} className="text-[#C8A97E]" />
+            <div>
+              <p className="text-[11px] font-bold text-[#888] uppercase tracking-widest mb-1">Order ID</p>
+              <p className="text-[14px] font-black text-[#2C2C2C] uppercase tracking-wider">{orderName || 'Processing...'}</p>
+            </div>
+          </div>
+          <div className="bg-[#F7F3EF] rounded-2xl p-6 border border-[#EAEAEA] flex items-center gap-4 text-left">
+            <Package size={24} className="text-[#C8A97E]" />
+            <div>
+              <p className="text-[11px] font-bold text-[#888] uppercase tracking-widest mb-1">Status</p>
+              <p className="text-[14px] font-black text-[#2C2C2C] uppercase tracking-wider">Confirmed</p>
+            </div>
           </div>
         </div>
+
+        <Link 
+          href="/shop"
+          className="inline-flex items-center gap-3 bg-[#2C2C2C] text-white px-10 py-5 rounded-full text-[12px] font-black uppercase tracking-[0.2em] hover:bg-[#C8A97E] transition-all group shadow-[0_10px_30px_rgba(0,0,0,0.1)]"
+        >
+          Continue Shopping
+          <ArrowRight size={16} className="group-hover:translate-x-1.5 transition-transform" />
+        </Link>
       </div>
+
     </div>
   );
 }

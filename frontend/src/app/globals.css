@@ -18,7 +18,7 @@
   --color-card-bg: var(--card-bg);
 
   --font-sans: var(--font-inter), system-ui, sans-serif;
-  --font-heading: var(--font-outfit), system-ui, sans-serif;
+  --font-heading: var(--font-inter), system-ui, sans-serif;
 }
 
 body {
@@ -30,6 +30,9 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
 }
 
 /* Premium scrollbar */
@@ -41,3 +44,18 @@ h1, h2, h3, h4, h5, h6 {
 /* Hide scrollbar utility */
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 .hide-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Odoo Description Styling */
+.odoo-description img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  margin: 1rem 0;
+}
+.odoo-description p { margin-bottom: 1rem; }
+.odoo-description ul, .odoo-description ol { 
+  margin: 1rem 0; 
+  padding-left: 1.5rem; 
+  list-style: disc; 
+}
+.odoo-description li { margin-bottom: 0.5rem; }

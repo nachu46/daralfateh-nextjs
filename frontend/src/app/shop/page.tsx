@@ -21,6 +21,7 @@ const sortOptions = [
 export default function ShopPage() {
   const searchParams = useSearchParams();
   const urlCategoryId = searchParams.get("category_id");
+  const urlSearch = searchParams.get("search") ?? "";
 
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -29,7 +30,7 @@ export default function ShopPage() {
     urlCategoryId ? parseInt(urlCategoryId) : null
   );
   const [sortBy, setSortBy] = useState("default");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(urlSearch);
   const [maxPrice, setMaxPrice] = useState(500);
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -41,7 +42,9 @@ export default function ShopPage() {
     } else {
       setSelectedCategory(null);
     }
-  }, [urlCategoryId]);
+    // Also sync search term from URL (e.g. from header search bar)
+    setSearchQuery(urlSearch);
+  }, [urlCategoryId, urlSearch]);
 
   // Fetch products from our Next.js API (which talks to Odoo)
   useEffect(() => {

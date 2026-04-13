@@ -42,7 +42,7 @@ async function getUid(): Promise<number> {
   return json.result;
 }
 
-async function callOdoo<T>(model: string, method: string, args: unknown[], kwargs: Record<string, unknown> = {}): Promise<T> {
+export async function callOdoo<T>(model: string, method: string, args: unknown[], kwargs: Record<string, unknown> = {}): Promise<T> {
   const uid = await getUid();
   const res = await fetch(`${ODOO_URL}/jsonrpc`, {
     method: 'POST',
@@ -69,6 +69,13 @@ export interface OdooProduct {
   is_published: boolean;
   description_sale: string | false;
   product_variant_id: [number, string] | number;
+  product_tmpl_id: [number, string] | number;
+  product_variant_ids?: number[];
+  attribute_line_ids?: number[];
+  product_template_attribute_value_ids?: number[];
+  product_template_image_ids?: number[];
+  website_description?: string;
+  description?: string;
 }
 
 export interface OdooCategory {
@@ -97,40 +104,103 @@ export async function fetchProducts(params?: { limit?: number; offset?: number; 
   if (params?.categoryId) {
     domain.push(['public_categ_ids', 'in', [params.categoryId]]);
   }
-  const products = await callOdoo<OdooProduct[]>(
+    const products = await callOdoo<OdooProduct[]>(
     'product.template', 'search_read', [domain],
     {
-      fields: ['id', 'name', 'list_price', 'public_categ_ids', 'is_published', 'description_sale', 'product_variant_id'],
+      fields: ['id', 'name', 'list_price', 'public_categ_ids', 'is_published', 'description_sale', 'product_variant_id', 'product_template_image_ids'],
       limit: params?.limit || 20,
       offset: params?.offset || 0,
       order: 'website_sequence asc, id asc',
     }
   );
-  return products.map(p => ({
-    id: Array.isArray(p.product_variant_id) ? p.product_variant_id[0] : p.id, // Use variant ID for cart
-    name: p.name,
-    price: p.list_price,
-    image_url: getProductImageUrl(p.id, 512),
-    hover_image_url: null,
-    category: p.public_categ_ids.map(id => ({ id, name: '' })),
-    description: typeof p.description_sale === 'string' ? p.description_sale : '',
-  }));
+  return products.map(p => {
+    // Determine the most stable ID (priority: Variant ID > Template ID)
+    let finalId = p.id;
+    if (Array.isArray(p.product_variant_id)) {
+      finalId = p.product_variant_id[0];
+    } else if (typeof p.product_variant_id === 'number') {
+      finalId = p.product_variant_id;
+    }
+
+    return {
+      id: finalId,
+      name: p.name,
+      price: p.list_price || 0,
+      image_url: getProductImageUrl(p.id, 512),
+      hover_image_url: (p.product_template_image_ids && p.product_template_image_ids.length > 0) 
+        ? getOdooImageUrl('product.image', p.product_template_image_ids[0], 'image_512') 
+        : null,
+      category: Array.isArray(p.public_categ_ids)
+        ? p.public_categ_ids.map(id => ({ id, name: '' }))
+        : [],
+      description: typeof p.description_sale === 'string' ? p.description_sale : '',
+    };
+  });
 }
 
 export async function fetchProductById(id: number) {
-  const products = await callOdoo<OdooProduct[]>(
-    'product.template', 'search_read', [[['id', '=', id]]],
-    { fields: ['id', 'name', 'list_price', 'public_categ_ids', 'is_published', 'description_sale'], limit: 1 }
+  // 1. Fetch the primary variant/product
+  const variantRecord = await callOdoo<OdooProduct[]>(
+    'product.product', 'search_read', [[['id', '=', id]]],
+    {
+      fields: ['id', 'name', 'list_price', 'public_categ_ids', 'is_published', 'description_sale', 'product_tmpl_id', 'product_template_attribute_value_ids'],
+      limit: 1
+    }
   );
-  if (!products.length) return null;
-  const p = products[0];
+  if (!variantRecord.length) return null;
+  const v = variantRecord[0];
+  const templateId = Array.isArray(v.product_tmpl_id) ? v.product_tmpl_id[0] : v.id;
+
+  // 2. Fetch the template to get variants, attributes, extra images, AND all description fields
+  const templateRecord = await callOdoo<OdooProduct[]>(
+    'product.template', 'read', [[templateId], ['name', 'description_sale', 'website_description', 'description', 'product_variant_ids', 'attribute_line_ids', 'public_categ_ids', 'product_template_image_ids']]
+  );
+  if (!templateRecord.length) return null;
+  const t = templateRecord[0];
+
+  // 3. Fetch Attribute Lines for the template
+  const attrLines = t.attribute_line_ids?.length ? await callOdoo<any[]>(
+    'product.template.attribute.line', 'read', [t.attribute_line_ids, ['attribute_id', 'product_template_value_ids']]
+  ) : [];
+
+  // 4. Fetch the Attribute Values for those lines
+  const attributes = await Promise.all(attrLines.map(async (al) => {
+    const values = await callOdoo<any[]>(
+      'product.template.attribute.value', 'read', [al.product_template_value_ids, ['id', 'name', 'product_attribute_value_id']]
+    );
+    return {
+      id: al.attribute_id[0],
+      name: al.attribute_id[1],
+      values: values.map(v => ({ id: v.id, name: v.name }))
+    };
+  }));
+
+  // 5. Fetch All Variants for the template
+  const allVariants = await callOdoo<OdooProduct[]>(
+    'product.product', 'read', [t.product_variant_ids || [], ['id', 'name', 'list_price', 'product_template_attribute_value_ids']]
+  );
+
+  const extraImages = (t.product_template_image_ids || []).map(imgId => 
+    getOdooImageUrl('product.image', imgId, 'image_1024')
+  );
+
   return {
-    id: Array.isArray(p.product_variant_id) ? p.product_variant_id[0] : p.id, // Use variant ID for cart
-    name: p.name,
-    image_url: getProductImageUrl(p.id, 1024),
-    hover_image_url: null,
-    category: p.public_categ_ids.map(catId => ({ id: catId, name: '' })),
-    description: typeof p.description_sale === 'string' ? p.description_sale : '',
+    id: v.id,
+    name: t.name,
+    price: v.list_price || 0,
+    image_url: getProductImageUrl(templateId, 1024),
+    extra_images: extraImages,
+    category: Array.isArray(t.public_categ_ids) ? t.public_categ_ids.map(catId => ({ id: catId, name: '' })) : [],
+    description: typeof t.description_sale === 'string' ? t.description_sale : '',
+    internal_description: typeof t.description === 'string' ? t.description : '',
+    website_description: typeof t.website_description === 'string' ? t.website_description : null,
+    attributes,
+    variants: allVariants.map(av => ({
+      id: av.id,
+      name: av.name,
+      price: av.list_price || 0,
+      attribute_value_ids: av.product_template_attribute_value_ids || []
+    }))
   };
 }
 
@@ -138,9 +208,15 @@ export async function fetchCategories() {
   try {
     const cats = await callOdoo<OdooCategory[]>(
       'product.public.category', 'search_read', [[]],
-      { fields: ['id', 'name', 'parent_id'], limit: 100 }
+      {
+        fields: ['id', 'name', 'parent_id'],
+        limit: 100
+      }
     );
-    return cats;
+    return cats.map(cat => ({
+      ...cat,
+      image_url: getCategoryImageUrl(cat.id, 1024)
+    }));
   } catch (err) {
     console.warn('[Odoo] fetchCategories error:', err);
     return [];
@@ -150,11 +226,19 @@ export async function fetchCategories() {
 /**
  * Creates or updates a guest partner in Odoo based on email
  */
-export async function createOrUpdatePartner(details: { name: string; email: string; phone: string; street: string }) {
+export async function createOrUpdatePartner(details: {
+  name: string;
+  email: string;
+  phone: string;
+  street: string;
+  city?: string;
+  zip?: string;
+  country_name?: string
+}) {
   try {
     // 1. Search for existing partner by email
     const existing = await callOdoo<{ id: number }[]>('res.partner', 'search_read', [[['email', '=', details.email]]], { limit: 1, fields: ['id'] });
-    
+
     if (existing.length) {
       const partnerId = existing[0].id;
       // 2. Update existing partner with latest details
@@ -162,6 +246,9 @@ export async function createOrUpdatePartner(details: { name: string; email: stri
         name: details.name,
         phone: details.phone,
         street: details.street,
+        city: details.city,
+        zip: details.zip,
+        // We'll keep country as a string in Odoo's city/street block for simplicity unless Odoo requires ID
       }]);
       return partnerId;
     } else {
@@ -171,6 +258,8 @@ export async function createOrUpdatePartner(details: { name: string; email: stri
         email: details.email,
         phone: details.phone,
         street: details.street,
+        city: details.city,
+        zip: details.zip,
         is_company: false,
         customer_rank: 1,
       }]);
@@ -184,7 +273,12 @@ export async function createOrUpdatePartner(details: { name: string; email: stri
 /**
  * Creates a Sale Order in Odoo (draft) and returns the Order ID
  */
-export async function createSaleOrder(partnerId: number, items: { id: number; quantity: number }[]) {
+export async function createSaleOrder(
+  partnerId: number, 
+  items: { id: number; quantity: number }[],
+  invoicePartnerId?: number,
+  shippingPartnerId?: number
+) {
   const orderLines = items.map(item => [
     0, 0, {
       product_id: item.id, // Must be product.product ID
@@ -194,6 +288,8 @@ export async function createSaleOrder(partnerId: number, items: { id: number; qu
 
   return callOdoo<number>('sale.order', 'create', [{
     partner_id: partnerId,
+    partner_invoice_id: invoicePartnerId || partnerId,
+    partner_shipping_id: shippingPartnerId || partnerId,
     order_line: orderLines,
     state: 'draft', // Ensure it starts as draft
   }]);
@@ -213,14 +309,59 @@ export async function confirmSaleOrder(orderId: number) {
 }
 
 /**
+ * Explicitly triggers the Odoo Sales Confirmation Email
+ */
+export async function sendOrderConfirmationEmail(orderId: number) {
+  try {
+    // 1. Find the Sale Order confirmation template
+    const templates = await callOdoo<{ id: number }[]>('mail.template', 'search_read', [
+      [['name', 'ilike', 'Sales: Order Confirmation']]
+    ], { limit: 1, fields: ['id'] });
+
+    if (templates.length) {
+      // 2. Send the mail
+      await callOdoo('mail.template', 'send_mail', [templates[0].id, orderId], { force_send: true });
+      return true;
+    }
+    
+    // Fallback search
+    const fallbackTemplates = await callOdoo<{ id: number }[]>('mail.template', 'search_read', [
+      [['model', '=', 'sale.order'], ['name', 'ilike', 'Confirmation']]
+    ], { limit: 1, fields: ['id'] });
+
+    if (fallbackTemplates.length) {
+        await callOdoo('mail.template', 'send_mail', [fallbackTemplates[0].id, orderId], { force_send: true });
+        return true;
+    }
+
+    console.warn('[Odoo] No confirmation template found to send.');
+    return false;
+  } catch (err) {
+    console.error('[Odoo] sendOrderConfirmationEmail error:', err);
+    return false;
+  }
+}
+
+/**
  * Generates the Odoo Portal URL for a specific order (for native payment)
  */
 export async function getPaymentLink(orderId: number) {
-  // get_portal_url returns the relative path to the order portal
-  const partialUrl = await callOdoo<string>('sale.order', 'get_portal_url', [[orderId]]);
-  // Appending ?access_token if needed is handled by Odoo natively in the path returned if requested,
-  // but usually get_portal_url returns a path we can bridge to.
-  return `${ODOO_URL}${partialUrl}`;
+  try {
+    const orders = await callOdoo<{ access_url: string }[]>('sale.order', 'search_read', [[['id', '=', orderId]]], {
+      fields: ['access_url'],
+      limit: 1
+    });
+
+    if (orders.length && orders[0].access_url) {
+      return `${ODOO_URL}${orders[0].access_url}`;
+    }
+
+    // Fallback to standard portal link
+    return `${ODOO_URL}/my/orders/${orderId}`;
+  } catch (err) {
+    console.error('[Odoo] getPaymentLink error:', err);
+    return `${ODOO_URL}/my/orders/${orderId}`;
+  }
 }
 
 /**
